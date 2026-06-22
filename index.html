@@ -26,7 +26,9 @@
 <meta name="twitter:image" content="https://www.caremytrip.com/wp-content/uploads/2025/09/banner-img.webp">
 
 <link rel="icon" type="image/png" href="assets/img/logo.png">
-<link rel="stylesheet" href="wp-content/themes/gofly/assets/css/bootstrap-icons16c8.css">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="image" href="assets/img/1.jpg" fetchpriority="high">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="assets/css/styles.css">
 
 <!-- Structured data: Travel agency / Organization -->
@@ -128,8 +130,28 @@
   </div>
 </header>
 
-<!-- ===== Hero ===== -->
-<section class="hero" aria-label="Welcome">
+<!-- ===== Hero with carousel ===== -->
+<section class="hero" aria-label="Welcome" id="hero-carousel">
+  <div class="hero-slides" aria-hidden="true">
+    <img class="hero-slide active" src="assets/img/1.jpg" alt="" width="1920" height="600" fetchpriority="high" decoding="async">
+    <img class="hero-slide" data-src="assets/img/2.jpg" alt="" width="1920" height="600" decoding="async">
+    <img class="hero-slide" data-src="assets/img/3.jpg" alt="" width="1920" height="600" decoding="async">
+    <img class="hero-slide" data-src="assets/img/4.jpg" alt="" width="1920" height="600" decoding="async">
+    <img class="hero-slide" data-src="assets/img/5.jpg" alt="" width="1920" height="600" decoding="async">
+    <img class="hero-slide" data-src="assets/img/6.jpg" alt="" width="1920" height="600" decoding="async">
+    <img class="hero-slide" data-src="assets/img/7.jpg" alt="" width="1920" height="600" decoding="async">
+  </div>
+  <button class="hero-nav prev" type="button" aria-label="Previous slide" data-hero="prev"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+  <button class="hero-nav next" type="button" aria-label="Next slide" data-hero="next"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+  <div class="hero-dots" role="tablist" aria-label="Hero carousel">
+    <button type="button" class="active" data-hero-dot="0" aria-label="Slide 1"></button>
+    <button type="button" data-hero-dot="1" aria-label="Slide 2"></button>
+    <button type="button" data-hero-dot="2" aria-label="Slide 3"></button>
+    <button type="button" data-hero-dot="3" aria-label="Slide 4"></button>
+    <button type="button" data-hero-dot="4" aria-label="Slide 5"></button>
+    <button type="button" data-hero-dot="5" aria-label="Slide 6"></button>
+    <button type="button" data-hero-dot="6" aria-label="Slide 7"></button>
+  </div>
   <div class="container">
     <span class="eyebrow">Never miss an opportunity to travel</span>
     <h1>Sacred journeys &amp; unforgettable holidays across the Himalayas &amp; beyond</h1>
@@ -193,16 +215,16 @@
     </div>
     <div class="dest-grid">
       <a class="dest" href="packages.html?cat=chardham-yatra">
-        <img src="wp-content/uploads/2025/09/tour-6.webp" alt="Chardham Yatra" loading="lazy">
+        <img src="wp-content/uploads/2025/09/tour-6.webp" alt="Chardham Yatra" loading="lazy" decoding="async" width="400" height="533">
         <div class="ov"><h3>Chardham Yatra</h3><span>Kedarnath · Badrinath · Gangotri · Yamunotri</span></div></a>
       <a class="dest" href="packages.html?cat=kerala">
-        <img src="wp-content/uploads/2025/09/tour-10.webp" alt="Kerala" loading="lazy">
+        <img src="wp-content/uploads/2025/09/tour-10.webp" alt="Kerala" loading="lazy" decoding="async" width="400" height="533">
         <div class="ov"><h3>Kerala</h3><span>Munnar · Alleppey backwaters</span></div></a>
       <a class="dest" href="packages.html?cat=uttarakhand">
-        <img src="wp-content/uploads/2025/09/banner-img1.webp" alt="Uttarakhand" loading="lazy">
+        <img src="wp-content/uploads/2025/09/banner-img1.webp" alt="Uttarakhand" loading="lazy" decoding="async" width="400" height="533">
         <div class="ov"><h3>Uttarakhand</h3><span>Auli · Harsil · Himalayas</span></div></a>
       <a class="dest" href="packages.html?cat=nepal">
-        <img src="wp-content/uploads/2025/09/beautiful-tourist-greece-with-meteora-monasteries-background-400x550.webp" alt="Nepal" loading="lazy">
+        <img src="wp-content/uploads/2025/09/beautiful-tourist-greece-with-meteora-monasteries-background-400x550.webp" alt="Nepal" loading="lazy" decoding="async" width="400" height="550">
         <div class="ov"><h3>Nepal</h3><span>Kathmandu · Pokhara</span></div></a>
     </div>
   </div>
@@ -320,7 +342,7 @@
   </div>
 </footer>
 
-<script src="assets/js/data.js"></script>
-<script src="assets/js/main.js"></script>
+<script src="assets/js/data.js" defer></script>
+<script src="assets/js/main.js" defer></script>
 </body>
 </html>

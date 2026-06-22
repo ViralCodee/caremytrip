@@ -81,9 +81,26 @@ p{margin:0 0 1em}
 .nav-toggle{display:none;background:none;border:none;font-size:26px;cursor:pointer;color:var(--ink);line-height:1}
 
 /* ---------- Hero ---------- */
-.hero{position:relative;color:#fff;background:linear-gradient(rgba(8,24,40,.55),rgba(8,24,40,.55)),
-  url('../../wp-content/uploads/2025/09/banner-img.webp') center/cover no-repeat;}
-.hero .container{padding:96px 20px 120px}
+.hero{position:relative;color:#fff;overflow:hidden;background:#0c1d33;isolation:isolate}
+.hero .container{padding:96px 20px 120px;position:relative;z-index:3}
+.hero-slides{position:absolute;inset:0;z-index:1}
+.hero-slides::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(rgba(8,24,40,.65),rgba(8,24,40,.55))}
+.hero-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transition:opacity 1.2s ease-in-out;z-index:1;display:block}
+.hero-slide.active{opacity:1}
+.hero-dots{position:absolute;left:0;right:0;bottom:18px;z-index:4;display:flex;gap:10px;
+  justify-content:center;padding:0 20px}
+.hero-dots button{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.7);
+  background:transparent;cursor:pointer;padding:0;transition:.2s}
+.hero-dots button:hover{background:rgba(255,255,255,.5);transform:scale(1.1)}
+.hero-dots button.active{background:var(--accent);border-color:var(--accent);transform:scale(1.15)}
+.hero-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;
+  border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.3);
+  color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.hero-nav:hover{background:rgba(255,255,255,.3);transform:translateY(-50%) scale(1.08)}
+.hero-nav.prev{left:18px}
+.hero-nav.next{right:18px}
 .hero .eyebrow{display:inline-block;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);
   padding:7px 16px;border-radius:50px;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
 .hero h1{font-size:clamp(32px,5vw,56px);max-width:760px;margin-bottom:14px;text-shadow:0 2px 18px rgba(0,0,0,.3)}
@@ -201,7 +218,13 @@ section{padding:70px 0}
 
 /* ---------- Page banner (sub pages) ---------- */
 .page-banner{position:relative;color:#fff;text-align:center;padding:80px 20px;
-  background:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../../wp-content/uploads/2025/09/banner-img1.webp') center/cover}
+  background:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/1.jpg') center/cover}
+.page-banner.pb-2{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/2.jpg')}
+.page-banner.pb-3{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/3.jpg')}
+.page-banner.pb-4{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/4.jpg')}
+.page-banner.pb-5{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/5.jpg')}
+.page-banner.pb-6{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/6.jpg')}
+.page-banner.pb-7{background-image:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/7.jpg')}
 .page-banner h1{font-size:clamp(28px,4vw,46px)}
 .breadcrumb{font-size:14px;color:#dbe6ef}
 .breadcrumb a:hover{color:#fff}
@@ -285,4 +308,7 @@ section{padding:70px 0}
   .searchbar{grid-template-columns:1fr;margin-top:-30px}
   .cta-band{flex-direction:column;text-align:center}
   .topbar{display:none}
+  .hero-nav{display:none}
+  .hero .container{padding:64px 20px 90px}
+  .hero-dots{bottom:14px}
 }

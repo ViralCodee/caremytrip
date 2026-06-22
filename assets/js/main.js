@@ -380,6 +380,62 @@
     });
   }
 
+  /* ---- hero carousel ---- */
+  function bindHeroCarousel() {
+    var root = document.getElementById("hero-carousel");
+    if (!root) return;
+    var slides = root.querySelectorAll(".hero-slide");
+    var dots   = root.querySelectorAll("[data-hero-dot]");
+    if (!slides.length) return;
+
+    var current = 0;
+    var timer;
+    var INTERVAL = 5500;
+
+    function ensureLoaded(idx) {
+      var s = slides[idx];
+      if (!s) return;
+      var ds = s.getAttribute("data-src");
+      if (ds) { s.setAttribute("src", ds); s.removeAttribute("data-src"); }
+    }
+    function go(i) {
+      current = (i + slides.length) % slides.length;
+      ensureLoaded(current);
+      ensureLoaded((current + 1) % slides.length); // prefetch next
+      slides.forEach(function (s, idx) { s.classList.toggle("active", idx === current); });
+      dots.forEach(function (d, idx) { d.classList.toggle("active", idx === current); });
+    }
+    function next() { go(current + 1); }
+    function prev() { go(current - 1); }
+    function play() { clearInterval(timer); timer = setInterval(next, INTERVAL); }
+
+    root.addEventListener("click", function (e) {
+      var nav = e.target.closest("[data-hero]");
+      if (nav) {
+        if (nav.getAttribute("data-hero") === "next") next(); else prev();
+        play();
+        return;
+      }
+      var dot = e.target.closest("[data-hero-dot]");
+      if (dot) { go(+dot.getAttribute("data-hero-dot")); play(); }
+    });
+
+    root.addEventListener("mouseenter", function () { clearInterval(timer); });
+    root.addEventListener("mouseleave", play);
+
+    // touch swipe
+    var sx = null;
+    root.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    root.addEventListener("touchend", function (e) {
+      if (sx == null) return;
+      var dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); play(); }
+      sx = null;
+    });
+
+    play();
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     bindNav();
     stampYear();
@@ -390,5 +446,6 @@
     renderBlogDetail();
     bindHomeSearch();
     bindEnquiry(document);
+    bindHeroCarousel();
   });
 })();

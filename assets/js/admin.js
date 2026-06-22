@@ -1,27 +1,26 @@
-/* CareMyTrip static admin.
- * This is a browser-only panel: edits are saved to localStorage first, then
- * exported as files for deployment.
+/* CareMyTrip — Admin panel (AdminLTE-style, single-page).
+ *
+ * Architecture:
+ *   - Hash-based router (#/dashboard, #/packages, #/blog, …)
+ *   - LocalStorage persistence for both packages and blog posts
+ *   - DataTables (jQuery) renders sortable / searchable / paginated tables
+ *   - All data reads/writes go through a small async layer (`api.*`) so the
+ *     UI is decoupled from storage — easy to swap for a real REST API.
+ *
  */
 (function () {
   "use strict";
 
+  /* ---------- constants ---------- */
   var ADMIN_PASSWORD = "caremytrip@2026";
-  var AUTH_KEY = "cmt_admin_ok";
-  var PACKAGE_KEY = "cmt_packages_v1";
+  var PKG_KEY  = "cmt_packages_v1";
   var BLOG_KEY = "cmt_blogs_v1";
+  var AUTH_KEY = "cmt_admin_ok";
   var SITE_URL = "https://www.caremytrip.com/";
 
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
-
-  var state = {
-    packages: [],
-    blogs: [],
-    packageTable: { q: "", category: "", page: 1, size: 25, sort: "title", dir: 1 },
-    blogTable: { q: "", status: "", page: 1, size: 10, sort: "date", dir: -1 },
-    editingPackage: null,
-    editingBlog: null
-  };
+  /* ---------- helpers ---------- */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -29,286 +28,305 @@
     });
   }
   function slugify(s) {
-    return String(s || "").toLowerCase().trim().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   }
+  function money(n) { return n == null ? "On request" : "₹" + Number(n).toLocaleString("en-IN"); }
   function lines(v) { return String(v || "").split("\n").map(function (x) { return x.trim(); }).filter(Boolean); }
   function num(v) { if (v === "" || v == null) return null; var n = Number(v); return isNaN(n) ? null : n; }
-  function money(n) { return n == null ? "On request" : "₹" + Number(n).toLocaleString("en-IN"); }
-  function clone(x) { return JSON.parse(JSON.stringify(x || [])); }
-  function company() { return (window.CMT && window.CMT.company) || {}; }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  function fmtDate(s) {
+    if (!s) return "—";
+    try { return new Date(s).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+    catch (e) { return s; }
+  }
+  function defaultsPkg() { return JSON.parse(JSON.stringify((window.CMT && window.CMT.packages) || [])); }
+  function defaultsBlog() { return JSON.parse(JSON.stringify((window.CMT && window.CMT.blogs) || [])); }
   function categories() { return (window.CMT && window.CMT.categories) || []; }
-  function catName(id) {
-    var c = categories().filter(function (x) { return x.id === id; })[0];
-    return c ? c.name : id;
-  }
-  function toast(msg) {
-    var t = $("#toast");
-    t.textContent = msg;
-    t.style.display = "block";
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(function () { t.style.display = "none"; }, 3200);
-  }
+  function catName(id) { var c = categories().filter(function (x) { return x.id === id; })[0]; return c ? c.name : id; }
+  function company() { return (window.CMT && window.CMT.company) || {}; }
 
-  function getStored(key) {
+  function loadStore(key, defaults) {
     try {
       var raw = localStorage.getItem(key);
-      if (raw) {
-        var parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return parsed;
-      }
+      if (raw) { var p = JSON.parse(raw); if (Array.isArray(p)) return p; }
     } catch (e) {}
-    return null;
+    return defaults();
   }
-  function savePackages() { localStorage.setItem(PACKAGE_KEY, JSON.stringify(state.packages)); }
-  function saveBlogs() { localStorage.setItem(BLOG_KEY, JSON.stringify(state.blogs)); }
+  function saveStore(key, list) { localStorage.setItem(key, JSON.stringify(list)); }
 
-  async function fetchJson(url, fallback) {
-    try {
-      var res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(res.status);
-      return await res.json();
-    } catch (e) {
-      return fallback;
+  /* ---------- async data layer ----------
+     Simulates an AJAX endpoint. A future swap to a real REST API only
+     touches these functions, not the UI code. */
+  var api = {
+    packages: {
+      list:  function () { return new Promise(function (res) { setTimeout(function () { res(loadStore(PKG_KEY, defaultsPkg)); }, 10); }); },
+      save:  function (list) { return new Promise(function (res) { saveStore(PKG_KEY, list); setTimeout(res, 0); }); },
+      reset: function () { return new Promise(function (res) { localStorage.removeItem(PKG_KEY); res(defaultsPkg()); }); }
+    },
+    blogs: {
+      list:  function () { return new Promise(function (res) { setTimeout(function () { res(loadStore(BLOG_KEY, defaultsBlog)); }, 10); }); },
+      save:  function (list) { return new Promise(function (res) { saveStore(BLOG_KEY, list); setTimeout(res, 0); }); },
+      reset: function () { return new Promise(function (res) { localStorage.removeItem(BLOG_KEY); res(defaultsBlog()); }); }
     }
-  }
+  };
 
-  async function loadData() {
-    var storedPackages = getStored(PACKAGE_KEY);
-    var storedBlogs = getStored(BLOG_KEY);
-    state.packages = storedPackages || await fetchJson("../data/packages.json", clone(window.CMT && window.CMT.packages));
-    state.blogs = storedBlogs || await fetchJson("../data/blogs.json", clone(window.CMT && window.CMT.blogs));
-    if (!Array.isArray(state.packages)) state.packages = [];
-    if (!Array.isArray(state.blogs)) state.blogs = [];
-  }
+  /* ---------- state ---------- */
+  var state = {
+    packages: [],
+    blogs: [],
+    pkgTable: null,
+    blogTable: null,
+    catTable: null,
+    editing: { pkg: null, blog: null }
+  };
 
-  function setAuthed(v) {
-    if (v) sessionStorage.setItem(AUTH_KEY, "1");
-    else sessionStorage.removeItem(AUTH_KEY);
-  }
+  /* ---------- auth ---------- */
+  function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === "1"; }
   function initAuth() {
-    var gate = $("#gate");
-    var app = $("#app");
+    var gate = $("#gate"), app = $("#app");
     function show() {
-      if (sessionStorage.getItem(AUTH_KEY) === "1") {
+      if (isAuthed()) {
         gate.style.display = "none";
-        app.style.display = "block";
-        refreshAll();
+        app.style.display = "flex";
+        bootApp();
       } else {
-        gate.style.display = "grid";
+        gate.style.display = "flex";
         app.style.display = "none";
       }
     }
-    $("#login-form").addEventListener("submit", async function (e) {
+    $("#login-form").addEventListener("submit", function (e) {
       e.preventDefault();
       if ($("#pw").value === ADMIN_PASSWORD) {
-        setAuthed(true);
-        await loadData();
-        show();
-      } else {
-        $("#login-err").style.display = "block";
+        sessionStorage.setItem(AUTH_KEY, "1"); show();
+      } else { $("#login-err").style.display = "block"; }
+    });
+    show();
+  }
+
+  /* ---------- router ---------- */
+  var ROUTES = {
+    dashboard:    { title: "Dashboard",     view: "dashboard",  load: loadDashboard },
+    packages:     { title: "Packages",      view: "packages",   load: loadPackages },
+    "package-new":{ title: "New package",   view: "packages",   load: function () { return loadPackages().then(function () { openPkgForm(null); }); } },
+    categories:   { title: "Categories",    view: "categories", load: loadCategories },
+    blog:         { title: "Blog",          view: "blog",       load: loadBlog },
+    "blog-new":   { title: "New blog post", view: "blog",       load: function () { return loadBlog().then(function () { openBlogForm(null); }); } },
+    seo:          { title: "SEO & LLM",     view: "seo",        load: loadSeo },
+    settings:     { title: "Settings",      view: "settings",   load: loadSettings }
+  };
+
+  function currentRoute() {
+    var h = (location.hash || "").replace(/^#\/?/, "").split("?")[0];
+    return ROUTES[h] ? h : "dashboard";
+  }
+  function navigate() {
+    var r = currentRoute();
+    var view = ROUTES[r];
+
+    $$(".adm-view").forEach(function (v) {
+      v.hidden = v.getAttribute("data-view") !== view.view;
+    });
+
+    $$(".adm-nav-link[data-route]").forEach(function (a) {
+      a.classList.toggle("active", a.getAttribute("data-route") === r);
+    });
+    var crumb = $("#adm-crumbs");
+    if (crumb) crumb.innerHTML = '<span><i class="bi bi-house-door"></i> Admin</span><span class="sep">/</span><span>' + esc(view.title) + '</span>';
+
+    closeMobileSidebar();
+    Promise.resolve(view.load()).catch(function (e) { console.error(e); toast("Error: " + e.message, "err"); });
+  }
+
+  /* ---------- sidebar ---------- */
+  function bindSidebar() {
+    $$(".adm-nav-tree").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var expanded = btn.getAttribute("aria-expanded") === "true";
+        btn.setAttribute("aria-expanded", expanded ? "false" : "true");
+      });
+    });
+    var burger = $("#adm-burger"), side = $("#adm-side"), bd = $("#adm-backdrop"), closeBtn = $("#adm-side-close");
+    function open()  { side.classList.add("open");    bd.hidden = false; burger.setAttribute("aria-expanded", "true"); }
+    function close() { side.classList.remove("open"); bd.hidden = true;  burger.setAttribute("aria-expanded", "false"); }
+    burger.addEventListener("click", function () { side.classList.contains("open") ? close() : open(); });
+    closeBtn.addEventListener("click", close);
+    bd.addEventListener("click", close);
+    window.__cmtCloseSidebar = close;
+  }
+  function closeMobileSidebar() { if (window.__cmtCloseSidebar) window.__cmtCloseSidebar(); }
+
+  /* ---------- dashboard ---------- */
+  function loadDashboard() {
+    return Promise.all([api.packages.list(), api.blogs.list()]).then(function (out) {
+      var pkgs = out[0], blogs = out[1];
+      state.packages = pkgs; state.blogs = blogs;
+
+      $("#stat-packages").textContent = pkgs.length;
+      $("#stat-featured").textContent = pkgs.filter(function (p) { return p.featured; }).length;
+      $("#stat-blogs").textContent    = blogs.length;
+      $("#stat-cats").textContent     = categories().length;
+
+      var counts = {};
+      pkgs.forEach(function (p) { counts[p.category] = (counts[p.category] || 0) + 1; });
+      var values = Object.keys(counts).map(function (k) { return counts[k]; });
+      var max = Math.max.apply(null, values.length ? values : [1]);
+      var bars = categories().map(function (c) {
+        var n = counts[c.id] || 0;
+        var w = Math.round((n / max) * 100);
+        return '<div class="b"><div class="lab" title="' + esc(c.name) + '">' + esc(c.name) + '</div>' +
+               '<div class="bar"><i style="width:' + w + '%"></i></div>' +
+               '<div class="n">' + n + '</div></div>';
+      }).join("");
+      $("#cat-chart").innerHTML = bars || '<p class="muted">No categories yet.</p>';
+
+      var recent = pkgs.slice(-5).reverse();
+      $("#recent-packages").innerHTML = recent.length ? recent.map(function (p) {
+        return '<li><img src="../' + esc(p.image) + '" alt="" class="thumb" loading="lazy">' +
+               '<div class="meta"><b>' + esc(p.title) + '</b><span>' + esc(catName(p.category)) + ' · ' + esc(p.duration || "") + '</span></div>' +
+               '<div class="pr">' + esc(money(p.price)) + '</div></li>';
+      }).join("") : '<li class="muted" style="padding:14px 0">No packages yet.</li>';
+
+      var recentBlogs = blogs.slice().sort(function (a, b) { return (b.date || "").localeCompare(a.date || ""); }).slice(0, 5);
+      $("#recent-blogs").innerHTML = recentBlogs.length ? recentBlogs.map(function (b) {
+        return '<li><img src="../' + esc(b.image || "assets/img/logo.png") + '" alt="" class="thumb" loading="lazy">' +
+               '<div class="meta"><b>' + esc(b.title) + '</b><span>' + esc(b.category || "Blog") + ' · ' + esc(fmtDate(b.date)) + '</span></div>' +
+               '<div class="pr">' + esc((b.status || "draft").toUpperCase()) + '</div></li>';
+      }).join("") : '<li class="muted" style="padding:14px 0">No blog posts yet.</li>';
+    });
+  }
+
+  /* ---------- packages ---------- */
+  function loadPackages() {
+    return api.packages.list().then(function (list) {
+      state.packages = list;
+      renderPkgTable();
+    });
+  }
+  function renderPkgTable() {
+    var $tbl = window.jQuery("#pkg-table");
+    if (state.pkgTable) { state.pkgTable.destroy(); $tbl.find("tbody").empty(); }
+
+    var rows = state.packages.map(function (p, i) {
+      return [
+        '<img class="tbl-img" src="../' + esc(p.image) + '" alt="" loading="lazy">',
+        '<div><b>' + esc(p.title) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc(p.destination || "") + '</div></div>',
+        esc(catName(p.category)),
+        esc(p.duration || ""),
+        p.price == null ? '<span style="color:var(--muted)">On request</span>' : Number(p.price).toLocaleString("en-IN"),
+        '<span title="' + esc((p.reviews || 0) + " reviews") + '"><i class="bi bi-star-fill" style="color:var(--gold)"></i> ' + esc(p.rating || 0) + '</span>',
+        p.featured ? '<span class="tag-yes"><i class="bi bi-star-fill"></i> Yes</span>' : '<span class="tag-no">No</span>',
+        '<div class="row-actions">' +
+          '<a class="b-view" href="../package.html?id=' + encodeURIComponent(p.id) + '" target="_blank" rel="noopener" title="View"><i class="bi bi-eye"></i></a>' +
+          '<button class="b-edit" data-edit="' + i + '" title="Edit"><i class="bi bi-pencil"></i></button>' +
+          '<button class="b-del" data-del="' + i + '" title="Delete"><i class="bi bi-trash"></i></button>' +
+        '</div>'
+      ];
+    });
+
+    state.pkgTable = $tbl.DataTable({
+      data: rows,
+      responsive: true,
+      pageLength: 10,
+      lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+      order: [[1, "asc"]],
+      columnDefs: [
+        { targets: 0, orderable: false, searchable: false },
+        { targets: 7, orderable: false, searchable: false }
+      ],
+      language: {
+        search: "",
+        searchPlaceholder: "Search packages…",
+        lengthMenu: "Show _MENU_",
+        info: "Showing _START_ to _END_ of _TOTAL_",
+        infoEmpty: "0 packages",
+        emptyTable: "No packages yet. Click \"Add package\" to create one.",
+        paginate: { previous: "‹", next: "›" }
       }
     });
-    $("#logout").addEventListener("click", function () { setAuthed(false); location.reload(); });
-    loadData().then(show);
+
+    window.jQuery("#pkg-table tbody")
+      .off("click", "[data-edit], [data-del]")
+      .on("click", "[data-edit]", function () { openPkgForm(+this.getAttribute("data-edit")); })
+      .on("click", "[data-del]",  function () { deletePkg(+this.getAttribute("data-del")); });
   }
 
-  function switchPanel(name) {
-    $$(".admin-nav button").forEach(function (b) { b.classList.toggle("active", b.dataset.panel === name); });
-    $$(".panel").forEach(function (p) { p.classList.toggle("active", p.id === "panel-" + name); });
-    $("#page-title").textContent = name.replace(/^\w/, function (c) { return c.toUpperCase(); }).replace("Seo", "SEO / GEO");
-    $("#sidebar").classList.remove("open");
-    if (name === "seo") renderSeo();
-  }
+  /* ---------- categories ---------- */
+  function loadCategories() {
+    return api.packages.list().then(function (pkgs) {
+      var counts = {};
+      pkgs.forEach(function (p) { counts[p.category] = (counts[p.category] || 0) + 1; });
 
-  function updateStats() {
-    $("#stat-packages").textContent = state.packages.length;
-    $("#stat-featured").textContent = state.packages.filter(function (p) { return p.featured; }).length;
-    $("#stat-blogs").textContent = state.blogs.length;
-    $("#stat-images").textContent = new Set(state.packages.map(function (p) { return p.image; }).filter(Boolean)).size;
-    $("#package-count").textContent = state.packages.length;
-    $("#blog-count").textContent = state.blogs.length;
-  }
-
-  function sortRows(list, table) {
-    return list.slice().sort(function (a, b) {
-      var av = a[table.sort], bv = b[table.sort];
-      if (av == null) av = "";
-      if (bv == null) bv = "";
-      if (typeof av === "number" && typeof bv === "number") return (av - bv) * table.dir;
-      return String(av).localeCompare(String(bv), undefined, { numeric: true }) * table.dir;
+      var $tbl = window.jQuery("#cat-table");
+      if (state.catTable) { state.catTable.destroy(); $tbl.find("tbody").empty(); }
+      var rows = categories().map(function (c) {
+        return [
+          '<code>' + esc(c.id) + '</code>',
+          '<b>' + esc(c.name) + '</b>',
+          esc(c.blurb || ""),
+          '<span class="tag-yes">' + (counts[c.id] || 0) + '</span>'
+        ];
+      });
+      state.catTable = $tbl.DataTable({
+        data: rows,
+        responsive: true,
+        pageLength: 10,
+        order: [[1, "asc"]],
+        language: { search: "", searchPlaceholder: "Filter categories…", paginate: { previous: "‹", next: "›" } }
+      });
     });
   }
 
-  function paginate(list, table) {
-    var pages = Math.max(1, Math.ceil(list.length / table.size));
-    if (table.page > pages) table.page = pages;
-    var start = (table.page - 1) * table.size;
-    return { rows: list.slice(start, start + table.size), total: list.length, pages: pages, start: start };
-  }
-
-  function pagerHTML(info, tableName) {
-    var html = '<span class="row-sub">Showing ' + (info.total ? info.start + 1 : 0) + "-" + Math.min(info.start + info.rows.length, info.total) + " of " + info.total + "</span><div class=\"pages\">";
-    var from = Math.max(1, info.pages <= 7 ? 1 : state[tableName].page - 3);
-    var to = Math.min(info.pages, from + 6);
-    if (to - from < 6) from = Math.max(1, to - 6);
-    html += '<button data-page="' + Math.max(1, state[tableName].page - 1) + '">Prev</button>';
-    for (var i = from; i <= to; i++) html += '<button class="' + (i === state[tableName].page ? "active" : "") + '" data-page="' + i + '">' + i + "</button>";
-    html += '<button data-page="' + Math.min(info.pages, state[tableName].page + 1) + '">Next</button></div>';
-    return html;
-  }
-
-  function renderPackageTable() {
-    var tableState = state.packageTable;
-    var q = tableState.q.toLowerCase();
-    var filtered = state.packages.filter(function (p) {
-      var hay = [p.title, p.destination, p.duration, catName(p.category)].join(" ").toLowerCase();
-      return (!q || hay.indexOf(q) !== -1) && (!tableState.category || p.category === tableState.category);
-    });
-    var info = paginate(sortRows(filtered, tableState), tableState);
-    $("#package-table").innerHTML =
-      '<thead><tr><th data-sort="image">Image</th><th data-sort="title">Package</th><th data-sort="category">Category</th><th data-sort="duration">Duration</th><th data-sort="price">Price</th><th>Actions</th></tr></thead>' +
-      '<tbody>' + (info.rows.length ? info.rows.map(function (p) {
-        var idx = state.packages.indexOf(p);
-        return '<tr><td><img src="../' + esc(p.image || "assets/img/logo.png") + '" alt=""></td>' +
-          '<td><div class="row-title">' + esc(p.title) + '</div><div class="row-sub">' + esc(p.destination || "") + '</div></td>' +
-          '<td>' + esc(catName(p.category)) + '</td><td>' + esc(p.duration || "") + '</td><td>' + money(p.price) + (p.featured ? ' <span class="pill orange"><i class="bi bi-star-fill"></i> Featured</span>' : '') + '</td>' +
-          '<td><div class="row-actions"><button class="icon-btn" data-edit-package="' + idx + '" title="Edit"><i class="bi bi-pencil"></i></button><button class="icon-btn" data-copy-package="' + idx + '" title="Duplicate"><i class="bi bi-copy"></i></button><button class="icon-btn" data-delete-package="' + idx + '" title="Delete"><i class="bi bi-trash"></i></button></div></td></tr>';
-      }).join("") : '<tr><td colspan="6" class="center muted" style="padding:30px">No packages found.</td></tr>') + '</tbody>';
-    $("#package-pager").innerHTML = pagerHTML(info, "packageTable");
-  }
-
-  function renderBlogTable() {
-    var tableState = state.blogTable;
-    var q = tableState.q.toLowerCase();
-    var filtered = state.blogs.filter(function (b) {
-      var hay = [b.title, b.category, b.excerpt, (b.tags || []).join(" ")].join(" ").toLowerCase();
-      return (!q || hay.indexOf(q) !== -1) && (!tableState.status || b.status === tableState.status);
-    });
-    var info = paginate(sortRows(filtered, tableState), tableState);
-    $("#blog-table").innerHTML =
-      '<thead><tr><th data-sort="image">Image</th><th data-sort="title">Blog</th><th data-sort="category">Category</th><th data-sort="date">Date</th><th data-sort="status">Status</th><th>Actions</th></tr></thead>' +
-      '<tbody>' + (info.rows.length ? info.rows.map(function (b) {
-        var idx = state.blogs.indexOf(b);
-        return '<tr><td><img src="../' + esc(b.image || "assets/img/logo.png") + '" alt=""></td>' +
-          '<td><div class="row-title">' + esc(b.title) + '</div><div class="row-sub">' + esc(b.excerpt || "") + '</div></td>' +
-          '<td>' + esc(b.category || "") + '</td><td>' + esc(b.date || "") + '</td><td><span class="pill ' + (b.status === "published" ? "" : "gray") + '">' + esc(b.status || "draft") + '</span></td>' +
-          '<td><div class="row-actions"><button class="icon-btn" data-edit-blog="' + idx + '" title="Edit"><i class="bi bi-pencil"></i></button><button class="icon-btn" data-copy-blog="' + idx + '" title="Duplicate"><i class="bi bi-copy"></i></button><button class="icon-btn" data-delete-blog="' + idx + '" title="Delete"><i class="bi bi-trash"></i></button></div></td></tr>';
-      }).join("") : '<tr><td colspan="6" class="center muted" style="padding:30px">No blogs found.</td></tr>') + '</tbody>';
-    $("#blog-pager").innerHTML = pagerHTML(info, "blogTable");
-  }
-
-  function refreshAll() {
-    populateFilters();
-    updateStats();
-    renderPackageTable();
-    renderBlogTable();
-    renderSeo();
-  }
-
-  function populateFilters() {
-    var sel = $("#package-category");
-    if (sel.dataset.done) return;
-    categories().forEach(function (c) {
-      var opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.name;
-      sel.appendChild(opt);
-    });
-    sel.dataset.done = "1";
-  }
-
-  function packageFormHTML(p) {
-    return [
-      field("title", "Title *", p.title, "full", "required"),
-      field("id", "ID / slug", p.id),
-      '<div class="field"><label>Category</label><select name="category">' + categories().map(function (c) { return '<option value="' + c.id + '"' + (c.id === p.category ? " selected" : "") + ">" + esc(c.name) + "</option>"; }).join("") + '</select></div>',
-      field("destination", "Destination", p.destination),
-      field("duration", "Duration", p.duration),
-      field("nights", "Nights", p.nights, "", 'type="number" min="0"'),
-      field("days", "Days", p.days, "", 'type="number" min="0"'),
-      field("price", "Price (₹)", p.price, "", 'type="number" min="0"'),
-      field("oldPrice", "Old price (₹)", p.oldPrice, "", 'type="number" min="0"'),
-      field("discount", "Discount label", p.discount),
-      field("rating", "Rating", p.rating, "", 'type="number" step="0.1" min="0" max="5"'),
-      field("reviews", "Reviews", p.reviews, "", 'type="number" min="0"'),
-      field("image", "Image path", p.image, "full"),
-      '<div class="field full check"><input type="checkbox" name="featured" id="pkg-featured"' + (p.featured ? " checked" : "") + '><label for="pkg-featured">Show as featured</label></div>',
-      area("summary", "Summary", p.summary, 3),
-      area("highlights", "Highlights (one per line)", (p.highlights || []).join("\n"), 3),
-      area("inclusions", "Inclusions (one per line)", (p.inclusions || []).join("\n"), 3),
-      area("exclusions", "Exclusions (one per line)", (p.exclusions || []).join("\n"), 3),
-      area("itinerary", "Itinerary (Title :: Description per line)", (p.itinerary || []).map(function (d) { return (d.title || "") + " :: " + (d.desc || ""); }).join("\n"), 5),
-      actions()
-    ].join("");
-  }
-
-  function blogFormHTML(b) {
-    return [
-      field("title", "Title *", b.title, "full", "required"),
-      field("id", "ID / slug", b.id),
-      field("category", "Category", b.category),
-      '<div class="field"><label>Status</label><select name="status"><option value="published"' + (b.status === "published" ? " selected" : "") + '>Published</option><option value="draft"' + (b.status === "draft" ? " selected" : "") + '>Draft</option></select></div>',
-      field("date", "Publish date", b.date, "", 'type="date"'),
-      field("image", "Image path", b.image, "full"),
-      area("excerpt", "Excerpt", b.excerpt, 3),
-      area("content", "Content", b.content, 8),
-      field("metaTitle", "Meta title", b.metaTitle, "full"),
-      area("metaDescription", "Meta description", b.metaDescription, 3),
-      area("tags", "Tags (one per line)", (b.tags || []).join("\n"), 3),
-      '<div class="field full check"><input type="checkbox" name="featured" id="blog-featured"' + (b.featured ? " checked" : "") + '><label for="blog-featured">Show as featured</label></div>',
-      actions()
-    ].join("");
-  }
-
-  function field(name, label, value, cls, attrs) {
-    return '<div class="field ' + (cls || "") + '"><label>' + esc(label) + '</label><input name="' + name + '" value="' + esc(value == null ? "" : value) + '" ' + (attrs || "") + '></div>';
-  }
-  function area(name, label, value, rows) {
-    return '<div class="field full"><label>' + esc(label) + '</label><textarea name="' + name + '" rows="' + rows + '">' + esc(value || "") + '</textarea></div>';
-  }
-  function actions() {
-    return '<div class="modal-actions field full"><button class="btn btn-ghost" type="button" data-close>Cancel</button><button class="btn btn-primary" type="submit">Save</button></div>';
-  }
-
-  function openPackageForm(index) {
-    state.editingPackage = index == null ? null : index;
-    var p = index == null ? { category: categories()[0] && categories()[0].id, rating: 4.7, reviews: 0, image: "wp-content/uploads/2025/09/tour-3-650x400.webp" } : state.packages[index];
-    $("#package-form-title").textContent = index == null ? "Add package" : "Edit package";
-    $("#package-form").innerHTML = packageFormHTML(p);
-    $("#package-modal").style.display = "flex";
-    $("#package-form [name=title]").focus();
-  }
-
-  function openBlogForm(index) {
-    state.editingBlog = index == null ? null : index;
-    var b = index == null ? { status: "published", date: new Date().toISOString().slice(0, 10), image: "wp-content/uploads/2025/09/blog-image4-650x400.webp", tags: [] } : state.blogs[index];
-    $("#blog-form-title").textContent = index == null ? "Add blog" : "Edit blog";
-    $("#blog-form").innerHTML = blogFormHTML(b);
-    $("#blog-modal").style.display = "flex";
-    $("#blog-form [name=title]").focus();
-  }
-
-  function closeModals() { $$(".modal").forEach(function (m) { m.style.display = "none"; }); }
-
-  function collectPackage(form) {
-    var f = form.elements;
-    var title = f.title.value.trim();
+  /* ---------- packages form ---------- */
+  function blankPkg() {
     return {
-      id: (f.id.value.trim() || slugify(title)),
-      title: title,
-      category: f.category.value,
+      category: (categories()[0] || { id: "" }).id,
+      rating: 4.7, reviews: 0, featured: false,
+      image: "wp-content/uploads/2025/09/tour-3-650x400.webp"
+    };
+  }
+  function openPkgForm(index) {
+    state.editing.pkg = (index == null) ? null : index;
+    var p = (index == null) ? blankPkg() : state.packages[index];
+    var f = $("#pkg-form");
+    f.title.value = p.title || "";
+    f.id.value = p.id || "";
+    f.category.innerHTML = categories().map(function (c) {
+      return '<option value="' + esc(c.id) + '"' + (c.id === p.category ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+    }).join("");
+    f.destination.value = p.destination || "";
+    f.duration.value = p.duration || "";
+    f.nights.value = p.nights == null ? "" : p.nights;
+    f.days.value = p.days == null ? "" : p.days;
+    f.price.value = p.price == null ? "" : p.price;
+    f.oldPrice.value = p.oldPrice == null ? "" : p.oldPrice;
+    f.discount.value = p.discount || "";
+    f.rating.value = p.rating == null ? "" : p.rating;
+    f.reviews.value = p.reviews == null ? "" : p.reviews;
+    f.image.value = p.image || "";
+    f.featured.checked = !!p.featured;
+    f.summary.value = p.summary || "";
+    f.highlights.value = (p.highlights || []).join("\n");
+    f.inclusions.value = (p.inclusions || []).join("\n");
+    f.exclusions.value = (p.exclusions || []).join("\n");
+    f.itinerary.value = (p.itinerary || []).map(function (d) { return (d.title || "") + " :: " + (d.desc || ""); }).join("\n");
+    $("#pkg-modal-title").textContent = (index == null) ? "Add package" : "Edit package";
+    openModal("pkg-modal");
+    f.title.focus();
+  }
+  function collectPkg() {
+    var f = $("#pkg-form");
+    var title = f.title.value.trim();
+    var id = (f.id.value.trim() || slugify(title));
+    return {
+      id: id, title: title, category: f.category.value,
       destination: f.destination.value.trim(),
-      nights: num(f.nights.value),
-      days: num(f.days.value),
+      nights: num(f.nights.value), days: num(f.days.value),
       duration: f.duration.value.trim(),
-      price: num(f.price.value),
-      oldPrice: num(f.oldPrice.value),
+      price: num(f.price.value), oldPrice: num(f.oldPrice.value),
       discount: f.discount.value.trim() || null,
       currency: "INR",
-      rating: num(f.rating.value) || 4.7,
-      reviews: num(f.reviews.value) || 0,
-      featured: f.featured.checked,
-      image: f.image.value.trim(),
+      rating: num(f.rating.value), reviews: num(f.reviews.value) || 0,
+      featured: f.featured.checked, image: f.image.value.trim(),
       summary: f.summary.value.trim(),
       highlights: lines(f.highlights.value),
       inclusions: lines(f.inclusions.value),
@@ -319,197 +337,396 @@
       })
     };
   }
+  function submitPkg(e) {
+    e.preventDefault();
+    var p = collectPkg();
+    if (!p.title) { toast("Title is required", "err"); return; }
+    var dupIdx = state.packages.findIndex(function (x) { return x.id === p.id; });
+    if (state.editing.pkg == null) {
+      if (dupIdx !== -1) { toast('A package with id "' + p.id + '" already exists', "err"); return; }
+      state.packages.push(p);
+    } else {
+      if (dupIdx !== -1 && dupIdx !== state.editing.pkg) {
+        toast('Another package already uses id "' + p.id + '"', "err"); return;
+      }
+      state.packages[state.editing.pkg] = p;
+    }
+    api.packages.save(state.packages).then(function () {
+      closeModal("pkg-modal");
+      renderPkgTable();
+      toast("Saved. Export from Settings to publish for everyone.", "ok");
+    });
+  }
+  function deletePkg(index) {
+    if (!confirm('Delete "' + state.packages[index].title + '"? Affects only this browser until you export.')) return;
+    state.packages.splice(index, 1);
+    api.packages.save(state.packages).then(function () { renderPkgTable(); toast("Deleted.", "ok"); });
+  }
 
-  function collectBlog(form) {
-    var f = form.elements;
-    var title = f.title.value.trim();
+  /* ---------- blog ---------- */
+  function loadBlog() {
+    return api.blogs.list().then(function (list) {
+      state.blogs = list;
+      renderBlogTable();
+    });
+  }
+  function renderBlogTable() {
+    var $tbl = window.jQuery("#blog-table");
+    if (state.blogTable) { state.blogTable.destroy(); $tbl.find("tbody").empty(); }
+
+    var rows = state.blogs.map(function (b, i) {
+      var status = (b.status || "draft").toLowerCase();
+      return [
+        '<img class="tbl-img" src="../' + esc(b.image || "assets/img/logo.png") + '" alt="" loading="lazy">',
+        '<div><b>' + esc(b.title) + '</b><div style="font-size:12.5px;color:var(--muted)">' + esc((b.excerpt || "").slice(0, 80)) + '</div></div>',
+        esc(b.category || ""),
+        '<span class="tag-status ' + esc(status) + '">' + esc(status) + '</span>',
+        esc(fmtDate(b.date)),
+        b.featured ? '<span class="tag-yes"><i class="bi bi-star-fill"></i> Yes</span>' : '<span class="tag-no">No</span>',
+        '<div class="row-actions">' +
+          '<a class="b-view" href="../blog.html?id=' + encodeURIComponent(b.id) + '" target="_blank" rel="noopener" title="View"><i class="bi bi-eye"></i></a>' +
+          '<button class="b-edit" data-edit="' + i + '" title="Edit"><i class="bi bi-pencil"></i></button>' +
+          '<button class="b-del" data-del="' + i + '" title="Delete"><i class="bi bi-trash"></i></button>' +
+        '</div>'
+      ];
+    });
+
+    state.blogTable = $tbl.DataTable({
+      data: rows,
+      responsive: true,
+      pageLength: 10,
+      lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+      order: [[4, "desc"]],
+      columnDefs: [
+        { targets: 0, orderable: false, searchable: false },
+        { targets: 6, orderable: false, searchable: false }
+      ],
+      language: {
+        search: "",
+        searchPlaceholder: "Search posts…",
+        lengthMenu: "Show _MENU_",
+        info: "Showing _START_ to _END_ of _TOTAL_",
+        infoEmpty: "0 posts",
+        emptyTable: "No blog posts yet. Click \"Add post\".",
+        paginate: { previous: "‹", next: "›" }
+      }
+    });
+
+    window.jQuery("#blog-table tbody")
+      .off("click", "[data-edit], [data-del]")
+      .on("click", "[data-edit]", function () { openBlogForm(+this.getAttribute("data-edit")); })
+      .on("click", "[data-del]",  function () { deleteBlog(+this.getAttribute("data-del")); });
+  }
+
+  function blankBlog() {
     return {
-      id: (f.id.value.trim() || slugify(title)),
-      title: title,
+      id: "", title: "", category: "", status: "draft", date: today(),
+      image: "wp-content/uploads/2025/09/blog-image1-650x400.webp",
+      excerpt: "", content: "", tags: [], featured: false,
+      metaTitle: "", metaDescription: ""
+    };
+  }
+  function openBlogForm(index) {
+    state.editing.blog = (index == null) ? null : index;
+    var b = (index == null) ? blankBlog() : state.blogs[index];
+    var f = $("#blog-form");
+    f.title.value = b.title || "";
+    f.id.value = b.id || "";
+    f.category.value = b.category || "";
+    f.status.value = b.status || "draft";
+    f.date.value = b.date || today();
+    f.image.value = b.image || "";
+    f.featured.checked = !!b.featured;
+    f.excerpt.value = b.excerpt || "";
+    f.content.value = b.content || "";
+    f.tags.value = (b.tags || []).join(", ");
+    f.metaTitle.value = b.metaTitle || "";
+    f.metaDescription.value = b.metaDescription || "";
+    $("#blog-modal-title").textContent = (index == null) ? "Add blog post" : "Edit blog post";
+    openModal("blog-modal");
+    f.title.focus();
+  }
+  function collectBlog() {
+    var f = $("#blog-form");
+    var title = f.title.value.trim();
+    var id = (f.id.value.trim() || slugify(title));
+    return {
+      id: id, title: title,
       category: f.category.value.trim(),
-      status: f.status.value,
-      date: f.date.value,
+      status: f.status.value, date: f.date.value || today(),
       image: f.image.value.trim(),
       excerpt: f.excerpt.value.trim(),
       content: f.content.value.trim(),
+      tags: String(f.tags.value || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean),
+      featured: f.featured.checked,
       metaTitle: f.metaTitle.value.trim(),
-      metaDescription: f.metaDescription.value.trim(),
-      tags: lines(f.tags.value),
-      featured: f.featured.checked
+      metaDescription: f.metaDescription.value.trim()
     };
   }
-
-  function upsert(list, item, index, label) {
-    if (!item.title) { alert("Title is required."); return false; }
-    var dup = list.findIndex(function (x) { return x.id === item.id; });
-    if (dup !== -1 && dup !== index) { alert("Another " + label + " already uses this slug."); return false; }
-    if (index == null) list.push(item);
-    else list[index] = item;
-    return true;
+  function submitBlog(e) {
+    e.preventDefault();
+    var b = collectBlog();
+    if (!b.title) { toast("Title is required", "err"); return; }
+    var dupIdx = state.blogs.findIndex(function (x) { return x.id === b.id; });
+    if (state.editing.blog == null) {
+      if (dupIdx !== -1) { toast('A post with id "' + b.id + '" already exists', "err"); return; }
+      state.blogs.push(b);
+    } else {
+      if (dupIdx !== -1 && dupIdx !== state.editing.blog) {
+        toast('Another post already uses id "' + b.id + '"', "err"); return;
+      }
+      state.blogs[state.editing.blog] = b;
+    }
+    api.blogs.save(state.blogs).then(function () {
+      closeModal("blog-modal");
+      renderBlogTable();
+      toast("Post saved.", "ok");
+    });
+  }
+  function deleteBlog(index) {
+    if (!confirm('Delete "' + state.blogs[index].title + '"?')) return;
+    state.blogs.splice(index, 1);
+    api.blogs.save(state.blogs).then(function () { renderBlogTable(); toast("Deleted.", "ok"); });
   }
 
+  /* ---------- SEO / LLM generation ---------- */
+  function genLlmsTxt() {
+    var co = company();
+    var addr = co.address || {};
+    var pkgList = state.packages.length ? state.packages : (window.CMT && window.CMT.packages) || [];
+    var blogList = state.blogs.length ? state.blogs : (window.CMT && window.CMT.blogs) || [];
+
+    function pkgLine(p) {
+      var price = p.price == null ? "On request" : "INR " + Number(p.price).toLocaleString("en-IN");
+      var disc = p.discount ? " (" + p.discount + ")" : "";
+      return "- [" + p.title + "](" + SITE_URL + "package.html?id=" + p.id + ") — " +
+        (p.destination || "") + ", " + (p.duration || "") + ", " + price + disc + ". " +
+        (p.summary || "").replace(/\s+/g, " ");
+    }
+    function blogLine(b) {
+      return "- [" + b.title + "](" + SITE_URL + "blog.html?id=" + b.id + ") — " +
+        (b.category || "Blog") + ", " + fmtDate(b.date) + ". " +
+        (b.excerpt || "").replace(/\s+/g, " ");
+    }
+
+    var L = [];
+    L.push("# " + (co.name || "CareMyTrip"));
+    L.push("");
+    L.push("> " + (co.tagline || "") + " " + (co.legalName || co.name) +
+      " is a registered, Dehradun-based travel company (since 2013) specialising in Chardham Yatra, Himalayan and India tour packages.");
+    L.push("");
+    L.push("## Geo");
+    L.push("- Country: India");
+    L.push("- Region: " + (addr.region || "Uttarakhand"));
+    L.push("- City: " + (addr.city || "Dehradun"));
+    L.push("- Postal code: " + (addr.postalCode || "248003"));
+    L.push("- Coordinates: 30.3165° N, 78.0322° E");
+    L.push("- Service area: " + (co.countries || []).join(", "));
+    L.push("");
+    L.push("## SEO");
+    L.push("- Site: " + (co.url || SITE_URL));
+    L.push("- Sitemap: " + (co.url || SITE_URL) + "sitemap.xml");
+    L.push("- Primary topics: Chardham Yatra, Kedarnath, Badrinath, Gangotri, Yamunotri, Auli, Harsil, Kerala, Nepal, Vietnam");
+    L.push("- Language: en-IN");
+    L.push("- License: Content (c) " + new Date().getFullYear() + " " + (co.name || "CareMyTrip") + ". Crawl-friendly for GPTBot, ClaudeBot, Google-Extended, PerplexityBot.");
+    L.push("");
+    L.push("## Contact");
+    L.push("- Phone: " + (co.phones || []).join(", "));
+    L.push("- WhatsApp: " + (co.whatsapp || ""));
+    L.push("- Email: " + (co.emails || []).join(", "));
+    L.push("- Address: " + (addr.street || "") + ", " + (addr.city || "") + ", " + (addr.region || "") + " " + (addr.postalCode || "") + ", India");
+    L.push("- GSTIN: " + (co.gstin || "") + " | CIN: " + (co.cin || ""));
+    L.push("");
+    L.push("## Tour packages");
+    pkgList.forEach(function (p) { L.push(pkgLine(p)); });
+    L.push("");
+    L.push("## Blog posts");
+    blogList.filter(function (b) { return (b.status || "published") === "published"; }).forEach(function (b) { L.push(blogLine(b)); });
+    L.push("");
+    L.push("## Key pages");
+    L.push("- [All tour packages](" + SITE_URL + "packages.html)");
+    L.push("- [Blog](" + SITE_URL + "blogs.html)");
+    L.push("- [About CareMyTrip](" + SITE_URL + "about.html)");
+    L.push("- [Contact](" + SITE_URL + "contact.html)");
+    return L.join("\n") + "\n";
+  }
+  function genSitemap() {
+    var pkgList = state.packages.length ? state.packages : (window.CMT && window.CMT.packages) || [];
+    var blogList = (state.blogs.length ? state.blogs : (window.CMT && window.CMT.blogs) || []).filter(function (b) { return (b.status || "published") === "published"; });
+    var d = today();
+    var urls = [
+      { u: SITE_URL,                  p: 1.0 },
+      { u: SITE_URL + "packages.html", p: 0.9 },
+      { u: SITE_URL + "blogs.html",    p: 0.8 },
+      { u: SITE_URL + "about.html",    p: 0.6 },
+      { u: SITE_URL + "contact.html",  p: 0.6 }
+    ];
+    pkgList.forEach(function (p) { urls.push({ u: SITE_URL + "package.html?id=" + encodeURIComponent(p.id), p: 0.7 }); });
+    blogList.forEach(function (b) { urls.push({ u: SITE_URL + "blog-post.html?id=" + encodeURIComponent(b.id), p: 0.7 }); });
+    categories().forEach(function (c) { urls.push({ u: SITE_URL + "packages.html?cat=" + encodeURIComponent(c.id), p: 0.6 }); });
+
+    var L = ['<?xml version="1.0" encoding="UTF-8"?>',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
+    urls.forEach(function (x) {
+      L.push("  <url><loc>" + x.u + "</loc><lastmod>" + d + "</lastmod><priority>" + x.p + "</priority></url>");
+    });
+    L.push("</urlset>");
+    return L.join("\n");
+  }
+  function genRobots() {
+    return [
+      "User-agent: *", "Allow: /", "Disallow: /admin/", "",
+      "# AI / LLM crawlers",
+      "User-agent: GPTBot", "Allow: /",
+      "User-agent: ClaudeBot", "Allow: /",
+      "User-agent: Google-Extended", "Allow: /",
+      "User-agent: PerplexityBot", "Allow: /",
+      "User-agent: anthropic-ai", "Allow: /",
+      "User-agent: CCBot", "Allow: /",
+      "",
+      "Sitemap: " + SITE_URL + "sitemap.xml"
+    ].join("\n") + "\n";
+  }
+
+  function loadSeo() {
+    return Promise.all([api.packages.list(), api.blogs.list()]).then(function (out) {
+      state.packages = out[0]; state.blogs = out[1];
+      $("#llms-preview").textContent    = genLlmsTxt();
+      $("#sitemap-preview").textContent = genSitemap();
+      $("#robots-preview").textContent  = genRobots();
+    });
+  }
+
+  /* ---------- settings ---------- */
+  function loadSettings() {
+    return Promise.all([api.packages.list(), api.blogs.list()]).then(function (out) {
+      state.packages = out[0]; state.blogs = out[1];
+    });
+  }
+
+  /* ---------- import / export ---------- */
   function download(filename, text, type) {
     var blob = new Blob([text], { type: type || "text/plain" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   }
-
-  function dataJsText() {
-    return "/* CareMyTrip canonical site data. */\nwindow.CMT = {\n" +
-      "  company: " + JSON.stringify(company(), null, 2).replace(/\n/g, "\n  ") + ",\n" +
-      "  defaults: " + JSON.stringify((window.CMT && window.CMT.defaults) || {}, null, 2).replace(/\n/g, "\n  ") + ",\n" +
-      "  categories: " + JSON.stringify(categories(), null, 2).replace(/\n/g, "\n  ") + ",\n" +
-      "  packages: " + JSON.stringify(state.packages, null, 2).replace(/\n/g, "\n  ") + ",\n" +
-      "  blogs: " + JSON.stringify(state.blogs, null, 2).replace(/\n/g, "\n  ") + "\n};\n";
+  function exportPkgJson()  { download("packages.json", JSON.stringify(state.packages, null, 2), "application/json"); }
+  function exportBlogJson() { download("blog.json",     JSON.stringify(state.blogs,    null, 2), "application/json"); }
+  function exportDataJs() {
+    var co = company(); var cats = categories();
+    var defs = (window.CMT && window.CMT.defaults) || {};
+    var out = "/* CareMyTrip canonical site data (exported from admin). */\n" +
+      "window.CMT = {\n" +
+      '  "company": '    + JSON.stringify(co,             null, 2).replace(/\n/g, "\n  ") + ",\n" +
+      '  "defaults": '   + JSON.stringify(defs,           null, 2).replace(/\n/g, "\n  ") + ",\n" +
+      '  "categories": ' + JSON.stringify(cats,           null, 2).replace(/\n/g, "\n  ") + ",\n" +
+      '  "packages": '   + JSON.stringify(state.packages, null, 2).replace(/\n/g, "\n  ") + ",\n" +
+      '  "blogs": '      + JSON.stringify(state.blogs,    null, 2).replace(/\n/g, "\n  ") + "\n};\n";
+    download("data.js", out, "application/javascript");
   }
-
-  function generateLlms() {
-    var co = company();
-    var out = [];
-    out.push("# CareMyTrip");
-    out.push("");
-    out.push("> " + (co.tagline || "Travel packages across India and beyond."));
-    out.push("");
-    out.push("CareMyTrip is a Dehradun-based travel company offering Chardham Yatra, Himalayan tours, India holiday packages, Nepal, Vietnam and custom itineraries.");
-    out.push("");
-    out.push("## Important URLs");
-    out.push("- Home: " + SITE_URL);
-    out.push("- Tour packages: " + SITE_URL + "packages.html");
-    out.push("- Blogs: " + SITE_URL + "blogs.html");
-    out.push("- Contact: " + SITE_URL + "contact.html");
-    out.push("");
-    out.push("## Contact");
-    out.push("- Phone: " + (co.phones || []).join(", "));
-    out.push("- Email: " + (co.emails || []).join(", "));
-    out.push("- Address: " + [co.address && co.address.street, co.address && co.address.city, co.address && co.address.region, co.address && co.address.postalCode].filter(Boolean).join(", "));
-    out.push("");
-    out.push("## Package Categories");
-    categories().forEach(function (c) { out.push("- " + c.name + ": " + c.blurb); });
-    out.push("");
-    out.push("## Featured Packages");
-    state.packages.filter(function (p) { return p.featured; }).slice(0, 40).forEach(function (p) {
-      out.push("- " + p.title + " | " + (p.destination || catName(p.category)) + " | " + (p.duration || "Flexible") + " | " + (p.price == null ? "On request" : "From INR " + p.price) + " | " + SITE_URL + "package.html?id=" + encodeURIComponent(p.id));
-    });
-    out.push("");
-    out.push("## Blog Posts");
-    state.blogs.filter(function (b) { return b.status !== "draft"; }).forEach(function (b) {
-      out.push("- " + b.title + " | " + (b.excerpt || "") + " | " + SITE_URL + "blog.html?id=" + encodeURIComponent(b.id));
-    });
-    return out.join("\n") + "\n";
-  }
-
-  function generateSitemap() {
-    var urls = [SITE_URL, SITE_URL + "packages.html", SITE_URL + "blogs.html", SITE_URL + "about.html", SITE_URL + "contact.html"];
-    state.packages.forEach(function (p) { urls.push(SITE_URL + "package.html?id=" + encodeURIComponent(p.id)); });
-    state.blogs.filter(function (b) { return b.status !== "draft"; }).forEach(function (b) { urls.push(SITE_URL + "blog.html?id=" + encodeURIComponent(b.id)); });
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-      urls.map(function (u) { return '  <url><loc>' + esc(u) + '</loc></url>'; }).join("\n") +
-      "\n</urlset>\n";
-  }
-
-  function renderSeo() {
-    var llms = $("#llms-output");
-    var sitemap = $("#sitemap-output");
-    if (llms) llms.value = generateLlms();
-    if (sitemap) sitemap.value = generateSitemap();
-  }
-
-  function readImport(file, kind) {
-    var reader = new FileReader();
-    reader.onload = function () {
+  function importJson(file, target) {
+    var r = new FileReader();
+    r.onload = function () {
       try {
-        var data = JSON.parse(reader.result);
-        var arr = Array.isArray(data) ? data : data[kind];
-        if (!Array.isArray(arr)) throw new Error("Expected JSON array.");
-        if (kind === "packages") { state.packages = arr; savePackages(); }
-        else { state.blogs = arr; saveBlogs(); }
-        refreshAll();
-        toast("Imported " + arr.length + " " + kind + ".");
-      } catch (e) {
-        alert("Import failed: " + e.message);
+        var data = JSON.parse(r.result);
+        var arr = Array.isArray(data) ? data : (data[target] || data.packages || data.blogs || null);
+        if (!Array.isArray(arr)) throw new Error("Expected an array");
+        if (target === "packages") { state.packages = arr; api.packages.save(arr).then(renderPkgTable); }
+        if (target === "blogs")    { state.blogs    = arr; api.blogs.save(arr).then(renderBlogTable); }
+        toast("Imported " + arr.length + " items.", "ok");
+      } catch (e) { toast("Import failed: " + e.message, "err"); }
+    };
+    r.readAsText(file);
+  }
+  function resetPkg() {
+    if (!confirm("Reset packages to built-in defaults? Local edits will be cleared.")) return;
+    api.packages.reset().then(function (defaults) { state.packages = defaults; api.packages.save(defaults).then(renderPkgTable); toast("Packages reset.", "ok"); });
+  }
+  function resetBlog() {
+    if (!confirm("Reset blog posts to built-in defaults?")) return;
+    api.blogs.reset().then(function (defaults) { state.blogs = defaults; api.blogs.save(defaults).then(renderBlogTable); toast("Blog reset.", "ok"); });
+  }
+  function resetAll() {
+    if (!confirm("Reset EVERYTHING (packages + blog + admin session)?")) return;
+    localStorage.removeItem(PKG_KEY);
+    localStorage.removeItem(BLOG_KEY);
+    sessionStorage.removeItem(AUTH_KEY);
+    location.reload();
+  }
+
+  /* ---------- modal + toast ---------- */
+  function openModal(id)  { var m = document.getElementById(id); if (m) m.hidden = false; document.body.style.overflow = "hidden"; }
+  function closeModal(id) { var m = document.getElementById(id); if (m) m.hidden = true;  document.body.style.overflow = ""; }
+  var toastTimer;
+  function toast(msg, type) {
+    var t = $("#toast"); t.textContent = msg;
+    t.className = "adm-toast" + (type ? " " + type : "");
+    t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+
+  /* ---------- boot ---------- */
+  function bootApp() {
+    if (window.__cmtAdminBooted) { navigate(); return; }
+    window.__cmtAdminBooted = true;
+
+    bindSidebar();
+
+    $$("[data-close]").forEach(function (b) {
+      b.addEventListener("click", function () { closeModal(b.getAttribute("data-close")); });
+    });
+    $$(".adm-modal").forEach(function (m) {
+      m.addEventListener("click", function (e) { if (e.target === m) closeModal(m.id); });
+    });
+
+    $("#pkg-form").addEventListener("submit", submitPkg);
+    $("#blog-form").addEventListener("submit", submitBlog);
+
+    $("#pkg-add").addEventListener("click", function () { openPkgForm(null); });
+    $("#pkg-export-js").addEventListener("click", exportDataJs);
+    $("#pkg-export-json").addEventListener("click", exportPkgJson);
+    $("#pkg-import").addEventListener("change", function () { if (this.files[0]) importJson(this.files[0], "packages"); this.value = ""; });
+    $("#pkg-reset").addEventListener("click", resetPkg);
+
+    $("#blog-add").addEventListener("click", function () { openBlogForm(null); });
+    $("#blog-export").addEventListener("click", exportBlogJson);
+    $("#blog-import").addEventListener("change", function () { if (this.files[0]) importJson(this.files[0], "blogs"); this.value = ""; });
+    $("#blog-reset").addEventListener("click", resetBlog);
+
+    $("#gen-llms").addEventListener("click",    function () { download("llms.txt",   genLlmsTxt(), "text/plain"); });
+    $("#gen-sitemap").addEventListener("click", function () { download("sitemap.xml", genSitemap(), "application/xml"); });
+    $("#gen-robots").addEventListener("click",  function () { download("robots.txt", genRobots(), "text/plain"); });
+
+    $("#settings-export-js").addEventListener("click",  exportDataJs);
+    $("#settings-export-pkg").addEventListener("click", exportPkgJson);
+    $("#settings-export-blog").addEventListener("click", exportBlogJson);
+    $("#settings-reset-all").addEventListener("click",  resetAll);
+
+    $("#logout").addEventListener("click", function () {
+      sessionStorage.removeItem(AUTH_KEY);
+      location.reload();
+    });
+
+    window.addEventListener("hashchange", navigate);
+    navigate();
+  }
+
+  /* ---------- entry ---------- */
+  document.addEventListener("DOMContentLoaded", function () {
+    var tries = 0;
+    var tryStart = function () {
+      if (window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable) {
+        initAuth();
+      } else if (++tries < 200) {
+        setTimeout(tryStart, 30);
+      } else {
+        console.error("DataTables / jQuery failed to load from CDN.");
+        initAuth();
       }
     };
-    reader.readAsText(file);
-  }
-
-  function bindEvents() {
-    $$(".admin-nav button").forEach(function (b) { b.addEventListener("click", function () { switchPanel(b.dataset.panel); }); });
-    $("#sidebar-toggle").addEventListener("click", function () { $("#sidebar").classList.toggle("open"); });
-    $("#add-package").addEventListener("click", function () { openPackageForm(null); });
-    $("#add-blog").addEventListener("click", function () { openBlogForm(null); });
-    $$("[data-close]").forEach(function (b) { b.addEventListener("click", closeModals); });
-    $$(".modal").forEach(function (m) { m.addEventListener("click", function (e) { if (e.target === m) closeModals(); }); });
-
-    $("#package-search").addEventListener("input", function () { state.packageTable.q = this.value; state.packageTable.page = 1; renderPackageTable(); });
-    $("#package-category").addEventListener("change", function () { state.packageTable.category = this.value; state.packageTable.page = 1; renderPackageTable(); });
-    $("#package-page-size").addEventListener("change", function () { state.packageTable.size = Number(this.value); state.packageTable.page = 1; renderPackageTable(); });
-    $("#blog-search").addEventListener("input", function () { state.blogTable.q = this.value; state.blogTable.page = 1; renderBlogTable(); });
-    $("#blog-status").addEventListener("change", function () { state.blogTable.status = this.value; state.blogTable.page = 1; renderBlogTable(); });
-    $("#blog-page-size").addEventListener("change", function () { state.blogTable.size = Number(this.value); state.blogTable.page = 1; renderBlogTable(); });
-
-    document.addEventListener("click", function (e) {
-      var b;
-      if (e.target.closest("[data-close]")) closeModals();
-      if ((b = e.target.closest("[data-edit-package]"))) openPackageForm(+b.dataset.editPackage);
-      if ((b = e.target.closest("[data-copy-package]"))) {
-        var copy = clone([state.packages[+b.dataset.copyPackage]])[0];
-        copy.id += "-copy"; copy.title += " Copy"; state.packages.push(copy); savePackages(); refreshAll(); toast("Package duplicated.");
-      }
-      if ((b = e.target.closest("[data-delete-package]")) && confirm("Delete this package?")) {
-        state.packages.splice(+b.dataset.deletePackage, 1); savePackages(); refreshAll(); toast("Package deleted.");
-      }
-      if ((b = e.target.closest("[data-edit-blog]"))) openBlogForm(+b.dataset.editBlog);
-      if ((b = e.target.closest("[data-copy-blog]"))) {
-        var bcopy = clone([state.blogs[+b.dataset.copyBlog]])[0];
-        bcopy.id += "-copy"; bcopy.title += " Copy"; state.blogs.push(bcopy); saveBlogs(); refreshAll(); toast("Blog duplicated.");
-      }
-      if ((b = e.target.closest("[data-delete-blog]")) && confirm("Delete this blog?")) {
-        state.blogs.splice(+b.dataset.deleteBlog, 1); saveBlogs(); refreshAll(); toast("Blog deleted.");
-      }
-      if ((b = e.target.closest("#package-pager [data-page]"))) { state.packageTable.page = +b.dataset.page; renderPackageTable(); }
-      if ((b = e.target.closest("#blog-pager [data-page]"))) { state.blogTable.page = +b.dataset.page; renderBlogTable(); }
-      if ((b = e.target.closest("#package-table th[data-sort]"))) {
-        var ps = state.packageTable; ps.dir = ps.sort === b.dataset.sort ? ps.dir * -1 : 1; ps.sort = b.dataset.sort; renderPackageTable();
-      }
-      if ((b = e.target.closest("#blog-table th[data-sort]"))) {
-        var bs = state.blogTable; bs.dir = bs.sort === b.dataset.sort ? bs.dir * -1 : 1; bs.sort = b.dataset.sort; renderBlogTable();
-      }
-    });
-
-    $("#package-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var p = collectPackage(e.currentTarget);
-      if (!upsert(state.packages, p, state.editingPackage, "package")) return;
-      savePackages(); closeModals(); refreshAll(); toast("Package saved.");
-    });
-    $("#blog-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var b = collectBlog(e.currentTarget);
-      if (!upsert(state.blogs, b, state.editingBlog, "blog")) return;
-      saveBlogs(); closeModals(); refreshAll(); toast("Blog saved.");
-    });
-
-    $("#export-packages").addEventListener("click", function () { download("packages.json", JSON.stringify(state.packages, null, 2), "application/json"); });
-    $("#export-blogs").addEventListener("click", function () { download("blogs.json", JSON.stringify(state.blogs, null, 2), "application/json"); });
-    $("#export-data-js").addEventListener("click", function () { download("data.js", dataJsText(), "application/javascript"); });
-    $("#download-llms").addEventListener("click", function () { download("llms.txt", generateLlms(), "text/plain"); });
-    $("#import-packages").addEventListener("change", function () { if (this.files[0]) readImport(this.files[0], "packages"); this.value = ""; });
-    $("#import-blogs").addEventListener("change", function () { if (this.files[0]) readImport(this.files[0], "blogs"); this.value = ""; });
-    $("#reset-all").addEventListener("click", function () {
-      if (!confirm("Clear local admin edits and reload built-in data?")) return;
-      localStorage.removeItem(PACKAGE_KEY);
-      localStorage.removeItem(BLOG_KEY);
-      loadData().then(function () { refreshAll(); toast("Local edits reset."); });
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    bindEvents();
-    initAuth();
+    tryStart();
   });
 })();
