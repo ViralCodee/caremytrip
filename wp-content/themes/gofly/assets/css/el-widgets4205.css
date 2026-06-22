@@ -1,0 +1,3 @@
+.egns-widget-icon::before {
+	content: url('../img/egenslab.svg');
+}
