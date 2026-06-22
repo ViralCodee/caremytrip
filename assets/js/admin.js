@@ -55,7 +55,7 @@
         '<td><b>' + esc(p.title) + '</b><br><small style="color:#5b6b80">' + esc(p.destination) + '</small></td>' +
         '<td>' + esc(catName(p.category)) + '</td>' +
         '<td>' + esc(p.duration) + '</td>' +
-        '<td>' + money(p.price) + (p.featured ? ' <span class="tag">★ featured</span>' : '') + '</td>' +
+        '<td>' + money(p.price) + (p.featured ? ' <span class="tag"><i class="bi bi-star-fill" aria-hidden="true"></i> featured</span>' : '') + '</td>' +
         '<td style="white-space:nowrap">' +
           '<button class="btn btn-ghost btn-sm" data-edit="' + i + '">Edit</button> ' +
           '<button class="btn btn-sm" style="background:#fdecec;color:#c0392b" data-del="' + i + '">Delete</button>' +

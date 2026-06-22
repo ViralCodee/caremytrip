@@ -41,6 +41,16 @@
     var was = p.oldPrice ? '<span class="was">' + money(p.oldPrice) + "</span>" : "";
     return '<span class="from">From</span><span class="now">' + money(p.price) + "</span>" + was;
   }
+  function packageSummary(p) {
+    return p.summary || (
+      "Explore " + (p.destination || p.title) + " with CareMyTrip's " + (p.duration || "custom") +
+      " tour package, including planned transfers, stays and on-trip assistance. Contact the team for the complete day-wise itinerary."
+    );
+  }
+  function defaultList(kind) {
+    var d = (window.CMT && window.CMT.defaults) || {};
+    return d[kind] || [];
+  }
   function whatsappLink(text) {
     var num = (company().whatsapp || "").replace(/[^0-9]/g, "");
     return "https://wa.me/" + num + "?text=" + encodeURIComponent(text);
@@ -57,9 +67,9 @@
             '<img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" loading="lazy" width="650" height="400"></a>' +
         "</div>" +
         '<div class="body">' +
-          '<div class="meta"><span>📍 ' + esc(p.destination) + "</span><span>🗓 " + esc(p.duration) + "</span></div>" +
+          '<div class="meta"><span><i class="bi bi-geo-alt" aria-hidden="true"></i> ' + esc(p.destination) + '</span><span><i class="bi bi-calendar3" aria-hidden="true"></i> ' + esc(p.duration) + "</span></div>" +
           "<h3><a href=\"package.html?id=" + encodeURIComponent(p.id) + '">' + esc(p.title) + "</a></h3>" +
-          '<div class="rating">★ ' + esc(p.rating) + ' <span>(' + esc(p.reviews) + " reviews)</span></div>" +
+          '<div class="rating"><i class="bi bi-star-fill" aria-hidden="true"></i> ' + esc(p.rating) + ' <span>(' + esc(p.reviews) + " reviews)</span></div>" +
           '<div class="foot">' +
             '<div class="price">' + priceBlock(p) + "</div>" +
             '<a class="btn btn-primary btn-sm" href="package.html?id=' + encodeURIComponent(p.id) + '">View</a>' +
@@ -143,9 +153,17 @@
     var itin = (p.itinerary || []).map(function (d) {
       return '<li><span class="d">Day ' + esc(d.day) + '</span><h4>' + esc(d.title) + "</h4><p>" + esc(d.desc) + "</p></li>";
     }).join("");
-    var inc = (p.inclusions || []).map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("");
-    var exc = (p.exclusions || []).map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("");
-    var hi = (p.highlights || []).map(function (h) { return "<li>" + esc(h) + "</li>"; }).join("");
+    var incList = (p.inclusions && p.inclusions.length) ? p.inclusions : defaultList("inclusions");
+    var excList = (p.exclusions && p.exclusions.length) ? p.exclusions : defaultList("exclusions");
+    var highlightList = (p.highlights && p.highlights.length) ? p.highlights : [
+      p.destination || catName(p.category),
+      p.duration || "Flexible itinerary",
+      p.price == null ? "Price on request" : "Transparent package pricing",
+      "CareMyTrip travel support"
+    ];
+    var inc = incList.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("");
+    var exc = excList.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("");
+    var hi = highlightList.map(function (h) { return "<li>" + esc(h) + "</li>"; }).join("");
 
     var priceBig = p.price == null
       ? '<div class="price-big" style="color:var(--accent)">On Request</div>'
@@ -157,12 +175,12 @@
         '<div class="detail-hero"><img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" width="900" height="500"></div>' +
         "<h1>" + esc(p.title) + "</h1>" +
         '<div class="meta-row">' +
-          "<span>📍 <b>" + esc(p.destination) + "</b></span>" +
-          "<span>🗓 <b>" + esc(p.duration) + "</b></span>" +
-          "<span>🏷 <b>" + esc(catName(p.category)) + "</b></span>" +
-          '<span>★ <b>' + esc(p.rating) + "</b> (" + esc(p.reviews) + " reviews)</span>" +
+          '<span><i class="bi bi-geo-alt" aria-hidden="true"></i> <b>' + esc(p.destination) + "</b></span>" +
+          '<span><i class="bi bi-calendar3" aria-hidden="true"></i> <b>' + esc(p.duration) + "</b></span>" +
+          '<span><i class="bi bi-tag" aria-hidden="true"></i> <b>' + esc(catName(p.category)) + "</b></span>" +
+          '<span><i class="bi bi-star-fill" aria-hidden="true"></i> <b>' + esc(p.rating) + "</b> (" + esc(p.reviews) + " reviews)</span>" +
         "</div>" +
-        '<p class="pkg-summary">' + esc(p.summary) + "</p>" +
+        '<p class="pkg-summary">' + esc(packageSummary(p)) + "</p>" +
         (hi ? '<h2>Highlights</h2><ul class="inc-list yes">' + hi + "</ul>" : "") +
         (itin ? '<h2>Day-wise Itinerary</h2><ul class="itin">' + itin + "</ul>" : "") +
         (inc || exc ? '<h2>Inclusions &amp; Exclusions</h2><div class="inc-grid">' +
@@ -177,8 +195,8 @@
           '<div class="form-row"><label>Travellers</label><input name="pax" type="number" min="1" value="2"></div>' +
           '<button type="submit" class="btn btn-primary btn-block">Send Enquiry</button>' +
         "</form>" +
-        '<a class="btn btn-teal btn-block" style="margin-top:10px" href="' + whatsappLink(quoteText) + '" target="_blank" rel="noopener">💬 Enquire on WhatsApp</a>' +
-        '<a class="btn btn-ghost btn-block" style="margin-top:10px" href="tel:' + esc((company().phones || [""])[0]) + '">📞 ' + esc((company().phones || [""])[0]) + "</a>" +
+        '<a class="btn btn-teal btn-block" style="margin-top:10px" href="' + whatsappLink(quoteText) + '" target="_blank" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i> Enquire on WhatsApp</a>' +
+        '<a class="btn btn-ghost btn-block" style="margin-top:10px" href="tel:' + esc((company().phones || [""])[0]) + '"><i class="bi bi-telephone" aria-hidden="true"></i> ' + esc((company().phones || [""])[0]) + "</a>" +
       "</div></aside></div>";
 
     bindEnquiry(root);
@@ -219,7 +237,7 @@
       "@context": "https://schema.org",
       "@type": "TouristTrip",
       "name": p.title,
-      "description": p.summary,
+      "description": packageSummary(p),
       "image": co.url + p.image,
       "touristType": catName(p.category),
       "itinerary": (p.itinerary || []).map(function (d, i) {
