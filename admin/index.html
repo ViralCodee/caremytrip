@@ -3,143 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin · CareMyTrip Packages</title>
+<title>Admin | CareMyTrip</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="../assets/img/logo.png">
 <link rel="stylesheet" href="../wp-content/themes/gofly/assets/css/bootstrap-icons16c8.css">
+<link rel="stylesheet" href="../assets/css/fonts.css">
 <link rel="stylesheet" href="../assets/css/styles.css">
 <style>
-  body{background:var(--bg-soft)}
-  .admin-top{background:var(--ink);color:#fff;padding:14px 0}
-  .admin-top .container{display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .admin-top .brand-text{color:#fff;font-weight:800;font-size:20px}
-  .admin-top .brand-text b{color:var(--accent)}
-  .admin-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
-  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:22px;margin-bottom:22px}
-  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .toolbar .group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  table{width:100%;border-collapse:collapse}
-  th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:14.5px}
-  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-  .tag{background:rgba(255,180,0,.18);color:#a07400;border-radius:50px;padding:2px 8px;font-size:11.5px;font-weight:700}
-  /* gate */
-  #gate{min-height:80vh;display:flex;align-items:center;justify-content:center}
-  .gate-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px;max-width:380px;width:100%;text-align:center}
-  .gate-card img{height:48px;margin:0 auto 16px}
-  .gate-card input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;margin:8px 0}
-  /* modal */
-  #modal{display:none;position:fixed;inset:0;background:rgba(16,40,70,.55);z-index:100;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 16px}
-  .modal-card{background:#fff;border-radius:var(--radius);max-width:760px;width:100%;padding:26px;box-shadow:var(--shadow)}
-  .modal-card h3{font-size:22px}
-  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .fgrid .full{grid-column:1/-1}
-  .field label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:5px}
-  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:inherit;font-size:14.5px}
+  body{background:#f3f7f8;min-height:100vh}
+  .admin-login{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(135deg,rgba(14,140,122,.08),rgba(255,122,26,.08))}
+  .login-card{width:min(420px,100%);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:30px}
+  .login-card img{height:52px;margin:0 auto 16px}
+  .login-card h1{font-size:22px;text-align:center}
+  .login-card input{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0 14px}
+  .admin-shell{display:none;min-height:100vh}
+  .admin-sidebar{position:fixed;inset:0 auto 0 0;width:264px;background:var(--ink);color:#d8e5ee;z-index:60;display:flex;flex-direction:column}
+  .admin-brand{height:70px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid rgba(255,255,255,.08);font-weight:800;color:#fff}
+  .admin-brand img{height:36px;width:auto;background:#fff;border-radius:8px;padding:3px}
+  .admin-nav{padding:16px 12px;display:flex;flex-direction:column;gap:6px}
+  .admin-nav button{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:#d8e5ee;border-radius:8px;padding:11px 12px;font:inherit;font-weight:700;text-align:left;cursor:pointer}
+  .admin-nav button:hover,.admin-nav button.active{background:rgba(255,255,255,.09);color:#fff}
+  .admin-nav button.active{box-shadow:inset 3px 0 0 var(--accent)}
+  .admin-main{margin-left:264px;min-height:100vh}
+  .admin-topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:40}
+  .admin-topbar h1{font-size:22px;margin:0}
+  .admin-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sidebar-toggle{display:none}
+  .admin-content{padding:24px}
+  .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  .metric{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm)}
+  .metric .mi{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:rgba(14,140,122,.11);color:var(--primary);font-size:22px}
+  .metric strong{display:block;font-size:24px;line-height:1}
+  .metric span{color:var(--muted);font-size:13px}
+  .admin-card{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 18px 0;flex-wrap:wrap}
+  .card-head h2{font-size:20px;margin:0}
+  .table-tools{display:grid;grid-template-columns:minmax(190px,1fr) 170px 120px;gap:10px;padding:16px 18px}
+  .table-tools input,.table-tools select,.field input,.field select,.field textarea{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:#fff}
+  .table-wrap{overflow:auto}
+  .data-table{width:100%;border-collapse:collapse;min-width:780px}
+  .data-table th,.data-table td{border-top:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:middle;font-size:14px}
+  .data-table th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#fafcfd;white-space:nowrap;cursor:pointer}
+  .data-table td img{width:66px;height:44px;object-fit:cover;border-radius:7px;background:#eef3f5}
+  .row-title{font-weight:800;color:var(--ink)}
+  .row-sub{color:var(--muted);font-size:12.5px}
+  .pill{display:inline-flex;align-items:center;gap:5px;border-radius:50px;padding:4px 9px;font-size:12px;font-weight:800;background:#eef7f5;color:var(--primary)}
+  .pill.orange{background:rgba(255,122,26,.12);color:var(--accent-d)}
+  .pill.gray{background:#edf1f5;color:#526172}
+  .row-actions{display:flex;gap:7px;white-space:nowrap}
+  .icon-btn{width:34px;height:34px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);display:inline-grid;place-items:center;cursor:pointer}
+  .icon-btn:hover{border-color:var(--primary);color:var(--primary)}
+  .pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+  .pager .pages{display:flex;gap:6px;flex-wrap:wrap}
+  .pager button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:8px 11px;font:inherit;font-weight:700;cursor:pointer}
+  .pager button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+  .panel{display:none}
+  .panel.active{display:block}
+  .modal{display:none;position:fixed;inset:0;background:rgba(19,35,58,.62);z-index:120;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 16px}
+  .modal-card{width:min(920px,100%);background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:22px}
+  .modal-title{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}
+  .modal-title h3{font-size:22px;margin:0}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field.full{grid-column:1/-1}
+  .field label{display:block;font-size:13px;font-weight:800;color:var(--muted);margin-bottom:5px}
   .field textarea{resize:vertical}
-  .hint{font-size:12px;color:var(--muted);margin-top:4px}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
-  #toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:50px;box-shadow:var(--shadow);z-index:200;font-size:14px}
   .check{display:flex;align-items:center;gap:8px}
   .check input{width:auto}
-  @media(max-width:680px){.fgrid{grid-template-columns:1fr}th:nth-child(1),td:nth-child(1){display:none}}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  .seo-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .seo-box textarea{min-height:360px;font-family:Consolas,monospace;font-size:13px}
+  .toast{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;border-radius:10px;box-shadow:var(--shadow);padding:13px 16px;display:none;z-index:200}
+  @media(max-width:1100px){.metric-grid{grid-template-columns:repeat(2,1fr)}.seo-grid{grid-template-columns:1fr}}
+  @media(max-width:820px){
+    .admin-sidebar{transform:translateX(-100%);transition:.2s ease}
+    .admin-sidebar.open{transform:translateX(0)}
+    .admin-main{margin-left:0}
+    .sidebar-toggle{display:inline-grid}
+    .admin-content{padding:16px}
+    .table-tools{grid-template-columns:1fr}
+    .form-grid,.metric-grid{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
 
-<!-- Login gate -->
-<div id="gate">
-  <form class="gate-card" id="login-form">
+<section class="admin-login" id="gate">
+  <form class="login-card" id="login-form">
     <img src="../assets/img/logo.png" alt="CareMyTrip">
-    <h3 style="font-size:20px">Admin Login</h3>
-    <p class="muted" style="font-size:14px;margin-top:-4px">Manage your tour packages</p>
+    <h1>Admin Login</h1>
+    <p class="center muted">Manage packages, blogs, exports and SEO files.</p>
     <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required>
     <div id="login-err" class="notice" style="display:none;background:#fdecec;color:#c0392b;border:1px solid #f5c6c6">Incorrect password.</div>
-    <button type="submit" class="btn btn-primary btn-block">Log in</button>
-    <p class="hint" style="margin-top:14px">Default password: <code>caremytrip@2026</code> — change it in <code>assets/js/admin.js</code>. This is a client-side lock only, not real security.</p>
+    <button class="btn btn-primary btn-block" type="submit">Log in</button>
   </form>
+</section>
+
+<div class="admin-shell" id="app">
+  <aside class="admin-sidebar" id="sidebar">
+    <div class="admin-brand"><img src="../assets/img/logo.png" alt=""> Care<b style="color:var(--accent)">MyTrip</b></div>
+    <nav class="admin-nav" aria-label="Admin">
+      <button class="active" data-panel="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</button>
+      <button data-panel="packages"><i class="bi bi-suitcase-lg"></i> Packages</button>
+      <button data-panel="blogs"><i class="bi bi-journal-text"></i> Blogs</button>
+      <button data-panel="seo"><i class="bi bi-graph-up-arrow"></i> SEO / GEO</button>
+      <button data-panel="settings"><i class="bi bi-sliders"></i> Settings</button>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button" aria-label="Open menu"><i class="bi bi-list"></i></button>
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+      <div class="admin-actions">
+        <a class="btn btn-ghost btn-sm" href="../index.html" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> View site</a>
+        <button class="btn btn-light btn-sm" id="logout" type="button">Log out</button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <section class="panel active" id="panel-dashboard">
+        <div class="metric-grid">
+          <div class="metric"><div class="mi"><i class="bi bi-suitcase-lg"></i></div><div><strong id="stat-packages">0</strong><span>Packages</span></div></div>
+          <div class="metric"><div class="mi"><i class="bi bi-star-fill"></i></div><div><strong id="stat-featured">0</strong><span>Featured tours</span></div></div>
+          <div class="metric"><div class="mi"><i class="bi bi-journal-text"></i></div><div><strong id="stat-blogs">0</strong><span>Blog posts</span></div></div>
+          <div class="metric"><div class="mi"><i class="bi bi-image"></i></div><div><strong id="stat-images">0</strong><span>Unique images</span></div></div>
+        </div>
+        <div class="admin-card">
+          <div class="card-head"><h2>Publishing workflow</h2></div>
+          <div style="padding:18px;color:var(--muted)">
+            Edits are saved in this browser first. Use the export buttons to download updated data files, then replace the matching files in the repository before deployment.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-packages">
+        <div class="admin-card">
+          <div class="card-head">
+            <h2>Packages <span class="pill" id="package-count">0</span></h2>
+            <div class="admin-actions">
+              <button class="btn btn-primary btn-sm" id="add-package" type="button"><i class="bi bi-plus-lg"></i> Add package</button>
+              <button class="btn btn-teal btn-sm" id="export-packages" type="button"><i class="bi bi-download"></i> Export JSON</button>
+            </div>
+          </div>
+          <div class="table-tools">
+            <input id="package-search" type="search" placeholder="Search packages">
+            <select id="package-category"><option value="">All categories</option></select>
+            <select id="package-page-size"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+          </div>
+          <div class="table-wrap"><table class="data-table" id="package-table"></table></div>
+          <div class="pager" id="package-pager"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-blogs">
+        <div class="admin-card">
+          <div class="card-head">
+            <h2>Blogs <span class="pill" id="blog-count">0</span></h2>
+            <div class="admin-actions">
+              <button class="btn btn-primary btn-sm" id="add-blog" type="button"><i class="bi bi-plus-lg"></i> Add blog</button>
+              <button class="btn btn-teal btn-sm" id="export-blogs" type="button"><i class="bi bi-download"></i> Export JSON</button>
+            </div>
+          </div>
+          <div class="table-tools">
+            <input id="blog-search" type="search" placeholder="Search blogs">
+            <select id="blog-status"><option value="">All status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+            <select id="blog-page-size"><option selected>10</option><option>25</option><option>50</option></select>
+          </div>
+          <div class="table-wrap"><table class="data-table" id="blog-table"></table></div>
+          <div class="pager" id="blog-pager"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-seo">
+        <div class="admin-card">
+          <div class="card-head">
+            <h2>SEO / GEO Generator</h2>
+            <div class="admin-actions">
+              <button class="btn btn-teal btn-sm" id="export-data-js" type="button"><i class="bi bi-download"></i> Export data.js</button>
+              <button class="btn btn-primary btn-sm" id="download-llms" type="button"><i class="bi bi-download"></i> Download llms.txt</button>
+            </div>
+          </div>
+          <div class="seo-grid" style="padding:18px">
+            <div class="seo-box field full">
+              <label>Generated llms.txt</label>
+              <textarea id="llms-output" readonly></textarea>
+            </div>
+            <div class="seo-box field full">
+              <label>Generated sitemap.xml</label>
+              <textarea id="sitemap-output" readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-settings">
+        <div class="admin-card">
+          <div class="card-head"><h2>Import / Reset</h2></div>
+          <div style="padding:18px;display:flex;gap:10px;flex-wrap:wrap">
+            <label class="btn btn-ghost" style="cursor:pointer;margin:0"><i class="bi bi-upload"></i> Import packages JSON<input type="file" id="import-packages" accept="application/json,.json" hidden></label>
+            <label class="btn btn-ghost" style="cursor:pointer;margin:0"><i class="bi bi-upload"></i> Import blogs JSON<input type="file" id="import-blogs" accept="application/json,.json" hidden></label>
+            <button class="btn btn-ghost" id="reset-all" type="button"><i class="bi bi-arrow-clockwise"></i> Reset local edits</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
 </div>
 
-<!-- App -->
-<div id="app" style="display:none">
-  <div class="admin-top">
-    <div class="container">
-      <div class="brand-text">Care<b>MyTrip</b> · Admin</div>
-      <div class="group" style="display:flex;gap:12px;align-items:center">
-        <a href="../index.html" style="color:#cfe0ef" target="_blank">View site ↗</a>
-        <button class="btn btn-light btn-sm" id="logout">Log out</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="admin-wrap">
-    <div class="notice info">
-      <b>How publishing works:</b> edits are saved in <em>this browser</em> and appear instantly on the site here.
-      To publish for <em>all</em> visitors, click <b>Export data.js</b> and replace <code>assets/js/data.js</code>
-      (and optionally <code>data/packages.json</code>) in your repository, then re-upload.
-    </div>
-
-    <div class="panel">
-      <div class="toolbar">
-        <div class="group">
-          <h2 style="margin:0;font-size:22px">Packages</h2>
-          <span class="tag" id="count">0 packages</span>
-        </div>
-        <div class="group">
-          <button class="btn btn-primary btn-sm" id="add-btn">+ Add package</button>
-          <button class="btn btn-teal btn-sm" id="export-js"><i class="bi bi-download" aria-hidden="true"></i> Export data.js</button>
-          <button class="btn btn-ghost btn-sm" id="export-json"><i class="bi bi-download" aria-hidden="true"></i> Export JSON</button>
-          <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0"><i class="bi bi-upload" aria-hidden="true"></i> Import JSON
-            <input type="file" id="import-file" accept="application/json,.json" hidden></label>
-          <button class="btn btn-ghost btn-sm" id="reset-btn"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr><th>Image</th><th>Package</th><th>Category</th><th>Duration</th><th>Price</th><th>Actions</th></tr></thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add/Edit modal -->
-<div id="modal">
+<div class="modal" id="package-modal">
   <div class="modal-card">
-    <h3 id="form-title">Add package</h3>
-    <form id="form">
-      <div class="fgrid">
-        <div class="field full"><label>Title *</label><input name="title" required></div>
-        <div class="field"><label>ID / slug</label><input name="id" placeholder="auto from title if blank"><div class="hint">Used in the URL: package.html?id=…</div></div>
-        <div class="field"><label>Category</label><select name="category"></select></div>
-        <div class="field"><label>Destination</label><input name="destination" placeholder="e.g. Kedarnath, Uttarakhand"></div>
-        <div class="field"><label>Duration (label)</label><input name="duration" placeholder="e.g. 3N / 4D"></div>
-        <div class="field"><label>Nights</label><input name="nights" type="number" min="0"></div>
-        <div class="field"><label>Days</label><input name="days" type="number" min="0"></div>
-        <div class="field"><label>Price (₹) — leave blank for "On Request"</label><input name="price" type="number" min="0"></div>
-        <div class="field"><label>Old price (₹)</label><input name="oldPrice" type="number" min="0"></div>
-        <div class="field"><label>Discount label</label><input name="discount" placeholder="e.g. 35% OFF"></div>
-        <div class="field"><label>Rating (0–5)</label><input name="rating" type="number" step="0.1" min="0" max="5"></div>
-        <div class="field"><label>Reviews count</label><input name="reviews" type="number" min="0"></div>
-        <div class="field full"><label>Image path</label><input name="image" placeholder="wp-content/uploads/2025/09/tour-3-650x400.webp">
-          <div class="hint">Path relative to site root. Reuse any image in <code>wp-content/uploads/</code> or add your own under <code>assets/img/</code>.</div></div>
-        <div class="field full check"><input type="checkbox" name="featured" id="featured"><label for="featured" style="margin:0">Show on homepage (featured)</label></div>
-        <div class="field full"><label>Summary</label><textarea name="summary" rows="3"></textarea></div>
-        <div class="field full"><label>Highlights (one per line)</label><textarea name="highlights" rows="3"></textarea></div>
-        <div class="field full"><label>Inclusions (one per line)</label><textarea name="inclusions" rows="3"></textarea></div>
-        <div class="field full"><label>Exclusions (one per line)</label><textarea name="exclusions" rows="3"></textarea></div>
-        <div class="field full"><label>Itinerary (one day per line — format: <code>Title :: Description</code>)</label>
-          <textarea name="itinerary" rows="5" placeholder="Haridwar to Guptkashi :: Scenic drive through the Garhwal Himalayas."></textarea></div>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="cancel-btn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save package</button>
-      </div>
-    </form>
+    <div class="modal-title"><h3 id="package-form-title">Package</h3><button class="icon-btn" data-close type="button"><i class="bi bi-x-lg"></i></button></div>
+    <form id="package-form" class="form-grid"></form>
   </div>
 </div>
 
-<div id="toast"></div>
+<div class="modal" id="blog-modal">
+  <div class="modal-card">
+    <div class="modal-title"><h3 id="blog-form-title">Blog</h3><button class="icon-btn" data-close type="button"><i class="bi bi-x-lg"></i></button></div>
+    <form id="blog-form" class="form-grid"></form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/admin.js"></script>
