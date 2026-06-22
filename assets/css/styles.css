@@ -18,6 +18,15 @@
   --radius-sm:10px;
   --maxw:1200px;
   --font:'Plus Jakarta Sans','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --font-roboto:'Roboto','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+}
+
+/* Package name, description & pricing use Roboto only */
+.card h3, .card h3 a,
+.card .price, .price .from, .price .now, .price .was, .price .req,
+.detail h1, .pkg-summary,
+.booking-card .price-big, .booking-card .price-big small, .booking-card .was{
+  font-family:var(--font-roboto);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}

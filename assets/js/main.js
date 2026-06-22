@@ -162,7 +162,7 @@
           "<span>🏷 <b>" + esc(catName(p.category)) + "</b></span>" +
           '<span>★ <b>' + esc(p.rating) + "</b> (" + esc(p.reviews) + " reviews)</span>" +
         "</div>" +
-        "<p>" + esc(p.summary) + "</p>" +
+        '<p class="pkg-summary">' + esc(p.summary) + "</p>" +
         (hi ? '<h2>Highlights</h2><ul class="inc-list yes">' + hi + "</ul>" : "") +
         (itin ? '<h2>Day-wise Itinerary</h2><ul class="itin">' + itin + "</ul>" : "") +
         (inc || exc ? '<h2>Inclusions &amp; Exclusions</h2><div class="inc-grid">' +
