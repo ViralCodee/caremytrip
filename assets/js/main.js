@@ -188,6 +188,8 @@
   /* ---- enquiry form -> WhatsApp ---- */
   function bindEnquiry(scope) {
     (scope || document).querySelectorAll(".enquiry-form").forEach(function (f) {
+      if (f.dataset.bound) return;   // guard: never attach the submit handler twice
+      f.dataset.bound = "1";
       f.addEventListener("submit", function (e) {
         e.preventDefault();
         var d = new FormData(f);
