@@ -291,28 +291,29 @@
   function closeModals() { $$(".modal").forEach(function (m) { m.style.display = "none"; }); }
 
   function collectPackage(form) {
-    var title = form.title.value.trim();
+    var f = form.elements;
+    var title = f.title.value.trim();
     return {
-      id: (form.id.value.trim() || slugify(title)),
+      id: (f.id.value.trim() || slugify(title)),
       title: title,
-      category: form.category.value,
-      destination: form.destination.value.trim(),
-      nights: num(form.nights.value),
-      days: num(form.days.value),
-      duration: form.duration.value.trim(),
-      price: num(form.price.value),
-      oldPrice: num(form.oldPrice.value),
-      discount: form.discount.value.trim() || null,
+      category: f.category.value,
+      destination: f.destination.value.trim(),
+      nights: num(f.nights.value),
+      days: num(f.days.value),
+      duration: f.duration.value.trim(),
+      price: num(f.price.value),
+      oldPrice: num(f.oldPrice.value),
+      discount: f.discount.value.trim() || null,
       currency: "INR",
-      rating: num(form.rating.value) || 4.7,
-      reviews: num(form.reviews.value) || 0,
-      featured: form.featured.checked,
-      image: form.image.value.trim(),
-      summary: form.summary.value.trim(),
-      highlights: lines(form.highlights.value),
-      inclusions: lines(form.inclusions.value),
-      exclusions: lines(form.exclusions.value),
-      itinerary: lines(form.itinerary.value).map(function (ln, i) {
+      rating: num(f.rating.value) || 4.7,
+      reviews: num(f.reviews.value) || 0,
+      featured: f.featured.checked,
+      image: f.image.value.trim(),
+      summary: f.summary.value.trim(),
+      highlights: lines(f.highlights.value),
+      inclusions: lines(f.inclusions.value),
+      exclusions: lines(f.exclusions.value),
+      itinerary: lines(f.itinerary.value).map(function (ln, i) {
         var parts = ln.split("::");
         return { day: i + 1, title: (parts[0] || "").trim(), desc: (parts[1] || "").trim() };
       })
@@ -320,20 +321,21 @@
   }
 
   function collectBlog(form) {
-    var title = form.title.value.trim();
+    var f = form.elements;
+    var title = f.title.value.trim();
     return {
-      id: (form.id.value.trim() || slugify(title)),
+      id: (f.id.value.trim() || slugify(title)),
       title: title,
-      category: form.category.value.trim(),
-      status: form.status.value,
-      date: form.date.value,
-      image: form.image.value.trim(),
-      excerpt: form.excerpt.value.trim(),
-      content: form.content.value.trim(),
-      metaTitle: form.metaTitle.value.trim(),
-      metaDescription: form.metaDescription.value.trim(),
-      tags: lines(form.tags.value),
-      featured: form.featured.checked
+      category: f.category.value.trim(),
+      status: f.status.value,
+      date: f.date.value,
+      image: f.image.value.trim(),
+      excerpt: f.excerpt.value.trim(),
+      content: f.content.value.trim(),
+      metaTitle: f.metaTitle.value.trim(),
+      metaDescription: f.metaDescription.value.trim(),
+      tags: lines(f.tags.value),
+      featured: f.featured.checked
     };
   }
 
@@ -452,6 +454,7 @@
 
     document.addEventListener("click", function (e) {
       var b;
+      if (e.target.closest("[data-close]")) closeModals();
       if ((b = e.target.closest("[data-edit-package]"))) openPackageForm(+b.dataset.editPackage);
       if ((b = e.target.closest("[data-copy-package]"))) {
         var copy = clone([state.packages[+b.dataset.copyPackage]])[0];
