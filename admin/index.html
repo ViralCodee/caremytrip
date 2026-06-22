@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · CareMyTrip Packages</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../assets/img/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/styles.css">
+<style>
+  body{background:var(--bg-soft)}
+  .admin-top{background:var(--ink);color:#fff;padding:14px 0}
+  .admin-top .container{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .admin-top .brand-text{color:#fff;font-weight:800;font-size:20px}
+  .admin-top .brand-text b{color:var(--accent)}
+  .admin-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:22px;margin-bottom:22px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .toolbar .group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  table{width:100%;border-collapse:collapse}
+  th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:14.5px}
+  th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .tag{background:rgba(255,180,0,.18);color:#a07400;border-radius:50px;padding:2px 8px;font-size:11.5px;font-weight:700}
+  /* gate */
+  #gate{min-height:80vh;display:flex;align-items:center;justify-content:center}
+  .gate-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:34px;max-width:380px;width:100%;text-align:center}
+  .gate-card img{height:48px;margin:0 auto 16px}
+  .gate-card input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;margin:8px 0}
+  /* modal */
+  #modal{display:none;position:fixed;inset:0;background:rgba(16,40,70,.55);z-index:100;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 16px}
+  .modal-card{background:#fff;border-radius:var(--radius);max-width:760px;width:100%;padding:26px;box-shadow:var(--shadow)}
+  .modal-card h3{font-size:22px}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fgrid .full{grid-column:1/-1}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:5px}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);font-family:inherit;font-size:14.5px}
+  .field textarea{resize:vertical}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  #toast{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:50px;box-shadow:var(--shadow);z-index:200;font-size:14px}
+  .check{display:flex;align-items:center;gap:8px}
+  .check input{width:auto}
+  @media(max-width:680px){.fgrid{grid-template-columns:1fr}th:nth-child(1),td:nth-child(1){display:none}}
+</style>
+</head>
+<body>
+
+<!-- Login gate -->
+<div id="gate">
+  <form class="gate-card" id="login-form">
+    <img src="../assets/img/logo.png" alt="CareMyTrip">
+    <h3 style="font-size:20px">Admin Login</h3>
+    <p class="muted" style="font-size:14px;margin-top:-4px">Manage your tour packages</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required>
+    <div id="login-err" class="notice" style="display:none;background:#fdecec;color:#c0392b;border:1px solid #f5c6c6">Incorrect password.</div>
+    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+    <p class="hint" style="margin-top:14px">Default password: <code>caremytrip@2026</code> — change it in <code>assets/js/admin.js</code>. This is a client-side lock only, not real security.</p>
+  </form>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
+  <div class="admin-top">
+    <div class="container">
+      <div class="brand-text">Care<b>MyTrip</b> · Admin</div>
+      <div class="group" style="display:flex;gap:12px;align-items:center">
+        <a href="../index.html" style="color:#cfe0ef" target="_blank">View site ↗</a>
+        <button class="btn btn-light btn-sm" id="logout">Log out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-wrap">
+    <div class="notice info">
+      <b>How publishing works:</b> edits are saved in <em>this browser</em> and appear instantly on the site here.
+      To publish for <em>all</em> visitors, click <b>Export data.js</b> and replace <code>assets/js/data.js</code>
+      (and optionally <code>data/packages.json</code>) in your repository, then re-upload.
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <div class="group">
+          <h2 style="margin:0;font-size:22px">Packages</h2>
+          <span class="tag" id="count">0 packages</span>
+        </div>
+        <div class="group">
+          <button class="btn btn-primary btn-sm" id="add-btn">+ Add package</button>
+          <button class="btn btn-teal btn-sm" id="export-js">⬇ Export data.js</button>
+          <button class="btn btn-ghost btn-sm" id="export-json">⬇ Export JSON</button>
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0">⬆ Import JSON
+            <input type="file" id="import-file" accept="application/json,.json" hidden></label>
+          <button class="btn btn-ghost btn-sm" id="reset-btn">↺ Reset</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Image</th><th>Package</th><th>Category</th><th>Duration</th><th>Price</th><th>Actions</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit modal -->
+<div id="modal">
+  <div class="modal-card">
+    <h3 id="form-title">Add package</h3>
+    <form id="form">
+      <div class="fgrid">
+        <div class="field full"><label>Title *</label><input name="title" required></div>
+        <div class="field"><label>ID / slug</label><input name="id" placeholder="auto from title if blank"><div class="hint">Used in the URL: package.html?id=…</div></div>
+        <div class="field"><label>Category</label><select name="category"></select></div>
+        <div class="field"><label>Destination</label><input name="destination" placeholder="e.g. Kedarnath, Uttarakhand"></div>
+        <div class="field"><label>Duration (label)</label><input name="duration" placeholder="e.g. 3N / 4D"></div>
+        <div class="field"><label>Nights</label><input name="nights" type="number" min="0"></div>
+        <div class="field"><label>Days</label><input name="days" type="number" min="0"></div>
+        <div class="field"><label>Price (₹) — leave blank for "On Request"</label><input name="price" type="number" min="0"></div>
+        <div class="field"><label>Old price (₹)</label><input name="oldPrice" type="number" min="0"></div>
+        <div class="field"><label>Discount label</label><input name="discount" placeholder="e.g. 35% OFF"></div>
+        <div class="field"><label>Rating (0–5)</label><input name="rating" type="number" step="0.1" min="0" max="5"></div>
+        <div class="field"><label>Reviews count</label><input name="reviews" type="number" min="0"></div>
+        <div class="field full"><label>Image path</label><input name="image" placeholder="wp-content/uploads/2025/09/tour-3-650x400.webp">
+          <div class="hint">Path relative to site root. Reuse any image in <code>wp-content/uploads/</code> or add your own under <code>assets/img/</code>.</div></div>
+        <div class="field full check"><input type="checkbox" name="featured" id="featured"><label for="featured" style="margin:0">Show on homepage (featured)</label></div>
+        <div class="field full"><label>Summary</label><textarea name="summary" rows="3"></textarea></div>
+        <div class="field full"><label>Highlights (one per line)</label><textarea name="highlights" rows="3"></textarea></div>
+        <div class="field full"><label>Inclusions (one per line)</label><textarea name="inclusions" rows="3"></textarea></div>
+        <div class="field full"><label>Exclusions (one per line)</label><textarea name="exclusions" rows="3"></textarea></div>
+        <div class="field full"><label>Itinerary (one day per line — format: <code>Title :: Description</code>)</label>
+          <textarea name="itinerary" rows="5" placeholder="Haridwar to Guptkashi :: Scenic drive through the Garhwal Himalayas."></textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save package</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/admin.js"></script>
+</body>
+</html>
