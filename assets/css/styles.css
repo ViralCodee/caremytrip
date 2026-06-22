@@ -132,6 +132,7 @@ section{padding:70px 0}
 .card h3 a:hover{color:var(--primary)}
 .card .rating{color:var(--gold);font-size:14px;font-weight:700}
 .card .rating span{color:var(--muted);font-weight:500}
+.row-sub{color:var(--muted);font-size:12.5px}
 .card .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--line)}
 .price .from{display:block;font-size:12px;color:var(--muted)}
 .price .now{font-size:22px;font-weight:800;color:var(--primary)}
@@ -213,6 +214,8 @@ section{padding:70px 0}
 .detail .meta-row{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);margin-bottom:24px;font-size:15px}
 .detail .meta-row b{color:var(--ink)}
 .detail h2{font-size:24px;margin-top:36px}
+.blog-content{font-size:17px;color:var(--ink)}
+.blog-content p{margin-bottom:18px}
 .itin{list-style:none;padding:0;margin:0;border-left:2px solid var(--line)}
 .itin li{position:relative;padding:0 0 24px 28px}
 .itin li::before{content:"";position:absolute;left:-9px;top:4px;width:16px;height:16px;border-radius:50%;

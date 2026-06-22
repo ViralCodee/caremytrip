@@ -1,31 +1,57 @@
 # CareMyTrip
 
-> Travel is the only thing you buy that makes you richer. CareMyTrip.com is a registered, Dehradun-based travel company (since 2013) specialising in Chardham Yatra, Himalayan and India tour packages, plus select international trips.
+> Travel is the only thing you buy that makes you richer
 
-CareMyTrip plans pilgrimages and holidays end-to-end: stays, transport, darshan assistance and 24x7 support. Areas served: India, Nepal, Thailand, Malaysia, Canada, Kuwait.
+CareMyTrip is a Dehradun-based travel company offering Char Dham Yatra, Kedarnath, Badrinath, Uttarakhand, Kerala, Nepal, Vietnam and custom tour packages.
+
+## Important URLs
+- Home: https://www.caremytrip.com/
+- packages.html: https://www.caremytrip.com/packages.html
+- blogs.html: https://www.caremytrip.com/blogs.html
+- about.html: https://www.caremytrip.com/about.html
+- contact.html: https://www.caremytrip.com/contact.html
 
 ## Contact
 - Phone: +91-8527456666, +91-8527458888, +91-9389186101
-- WhatsApp: +918527456666
 - Email: info@caremytrip.com, caremytrip@gmail.com
-- Address: CMTC House, Khasra No-123KA, Kuthalwali, Near Gorya Homes, Johrigoan, Dehradun, Uttarakhand 248003, India
-- GSTIN: 05AAFCC4083R1Z7 | CIN: U63030DL2013PTC257344
+- Address: CMTC House, Khasra No-123KA, Kuthalwali, Near Gorya Homes, Johrigoan, Dehradun, Uttarakhand, 248003
 
-## Tour packages
-- [Ek Dham Yatra — Kedarnath Ji from Haridwar](https://www.caremytrip.com/package.html?id=ek-dham-kedarnath-haridwar) — Kedarnath, Uttarakhand, 3N / 4D, INR 12,900 (35% OFF). A focused 4-day pilgrimage to the revered Kedarnath shrine, starting and ending at Haridwar with comfortable stays and assisted darshan.
-- [Do Dham Yatra from Haridwar 2026 — Kedarnath & Badrinath](https://www.caremytrip.com/package.html?id=do-dham-haridwar) — Kedarnath & Badrinath, Uttarakhand, 5N / 6D, INR 19,000 (24% OFF). Visit two of the four sacred dhams — Kedarnath and Badrinath — on a well-paced 6-day circuit from Haridwar.
-- [Do Dham Yatra from Delhi 2026 — Kedarnath & Badrinath](https://www.caremytrip.com/package.html?id=do-dham-delhi) — Kedarnath & Badrinath (ex-Delhi), 7N / 8D, INR 26,900 (10% OFF). Door-to-door Do Dham pilgrimage starting from Delhi, covering Kedarnath and Badrinath with all transfers handled.
-- [Chardham Yatra from Haridwar 2026 — 9N/10D](https://www.caremytrip.com/package.html?id=chardham-haridwar-2026) — Yamunotri, Gangotri, Kedarnath & Badrinath, 9N / 10D, INR 25,900 (19% OFF). The complete Char Dham circuit — Yamunotri, Gangotri, Kedarnath and Badrinath — over a comfortable 10-day journey from Haridwar.
-- [Chardham Yatra by Helicopter 2026](https://www.caremytrip.com/package.html?id=chardham-helicopter-2026) — All Four Dhams by Helicopter, 6 Days, INR 2,35,000 (4% OFF). Cover all four dhams in just 6 days by helicopter — VIP darshan, premium stays and breathtaking Himalayan aerial views.
-- [10 Days Luxury Char Dham Yatra from Haridwar](https://www.caremytrip.com/package.html?id=luxury-chardham-10-days) — All Four Dhams — Luxury, 9N / 10D, INR 99,000. The Char Dham circuit elevated — handpicked premium hotels, curated meals and dedicated assistance across all four shrines.
-- [5 Nights Harsil Village Luxury Tour](https://www.caremytrip.com/package.html?id=harsil-village-luxury) — Harsil, Uttarakhand, 5N / 6D, INR 26,900 (10% OFF). Unwind in the apple-orchard hamlet of Harsil near Gangotri — pristine Himalayan landscapes, riverside walks and luxury stays.
-- [Amazing Kerala — 05 Nights / 06 Days](https://www.caremytrip.com/package.html?id=amazing-kerala) — Munnar, Thekkady, Alleppey & Kovalam, 4N / 5D, INR 14,200 (25% OFF). God's Own Country in one trip — tea-carpeted Munnar hills, Thekkady spice country and a houseboat night on the Alleppey backwaters.
-- [Basant Panchami Kumbh Mela Tour](https://www.caremytrip.com/package.html?id=basant-panchami-kumbh-mela) — Prayagraj / Holy Sangam, 4N / 5D, INR 75,000 (16% OFF). Experience the world's largest spiritual gathering on the auspicious Basant Panchami Shahi Snan, with curated tented stays and guided rituals.
-- [Auli by Helicopter](https://www.caremytrip.com/package.html?id=auli-by-heli) — Auli, Uttarakhand, 2N / 3D, INR 35,500. Skip the long drive — fly to Auli for snow-clad slopes, Asia's highest ropeway and panoramic views of Nanda Devi.
-- [Nepal — Kathmandu & Pokhara](https://www.caremytrip.com/package.html?id=nepal-kathmandu-pokhara) — Kathmandu & Pokhara, Nepal, 5N / 6D, On request. Temples, stupas and the serene lakes of Pokhara with Himalayan panoramas — a classic Nepal circuit. Pricing on request.
-- [Vietnam — Hanoi & Halong Bay](https://www.caremytrip.com/package.html?id=vietnam-hanoi-halong) — Hanoi & Halong Bay, Vietnam, 6N / 7D, On request. Vietnam's north — the buzzing old quarter of Hanoi and an overnight cruise through the limestone karsts of Halong Bay. Pricing on request.
+## Package Categories
+- Chardham Yatra: Kedarnath, Badrinath, Gangotri & Yamunotri pilgrimages.
+- Kumbh Mela: Spiritual mega-gatherings on India's holy rivers.
+- Uttarakhand: Himalayan getaways — Auli, Harsil, Valley of Flowers, Kumaon.
+- Kerala: Backwaters, beaches and hill stations of God's Own Country.
+- Nepal: Kathmandu, Pokhara, Muktinath & Kailash Mansarovar.
+- Vietnam: Hanoi, Halong Bay, Sapa, Da Nang & Ho Chi Minh.
+- Himachal Pradesh: Shimla, Manali, Dharamsala & Dalhousie.
+- Kashmir & Leh Ladakh: Srinagar, Gulmarg, Pahalgam, Leh & Ladakh.
+- Darjeeling, Sikkim & North East: Gangtok, Darjeeling, Pelling & North-East India.
+- Andaman & Nicobar: Island beaches, coral reefs & honeymoon escapes.
+- Karnataka: Coastal & classical Karnataka circuits.
+- Tamil Nadu: Temples, hills and heritage of Tamil Nadu.
+- Golden Triangle & Rajasthan: Delhi, Agra, Jaipur and beyond.
+- Ayodhya & Ramayana Yatra: Ramayana circuit & cultural tours of Awadh.
 
-## Key pages
-- [All tour packages](https://www.caremytrip.com/packages.html)
-- [About CareMyTrip](https://www.caremytrip.com/about.html)
-- [Contact](https://www.caremytrip.com/contact.html)
+## Featured Packages
+- Ek Dham Yatra Kedarnath Ji from Haridwar 04 Days | Kedarnath, Uttarakhand | 3N / 4D | From INR 12900 | https://www.caremytrip.com/package.html?id=ek-dham-kedarnath-haridwar
+- Do Dham Yatra from Haridwar 2026 – Kedarnath & Badrinath | Kedarnath & Badrinath | 5N / 6D | From INR 19000 | https://www.caremytrip.com/package.html?id=do-dham-haridwar
+- Chardham Yatra from Haridwar 2026 – 9N/10D | Yamunotri, Gangotri, Kedarnath & Badrinath | 9N / 10D | From INR 25900 | https://www.caremytrip.com/package.html?id=chardham-haridwar-2026
+- Chardham Yatra by Helicopter 2026 | All Four Dhams by Helicopter | 6 Days | From INR 235000 | https://www.caremytrip.com/package.html?id=chardham-helicopter-2026
+- 5 Nights Harsil Village Luxury Tour Package | Harsil, Uttarakhand | 5N / 6D | From INR 26900 | https://www.caremytrip.com/package.html?id=harsil-village-luxury
+- Auli by Heli – 3 Day Helicopter Tour to Uttarakhand's Ski Paradise | Auli, Uttarakhand | 2N / 3D | From INR 35500 | https://www.caremytrip.com/package.html?id=auli-by-heli
+- Amazing Kerala 05 Nights / 06 Days | Munnar, Thekkady & Alleppey | 4N / 5D | From INR 14200 | https://www.caremytrip.com/package.html?id=amazing-kerala
+- Magical Kerala Tour Package 05N 06D | Munnar, Thekkady, Alleppey & Kovalam | 5N / 6D | From INR 20000 | https://www.caremytrip.com/package.html?id=magical-kerala
+- Kathmandu & Pokhara 5 Nights 6 Days | Kathmandu & Pokhara | 5N / 6D | From INR 18600 | https://www.caremytrip.com/package.html?id=kathmandu-pokhara-6d
+- Hanoi – Ha Long – Da Nang – Hoi An – Ho Chi Minh (6N 7D) | Hanoi, Halong, Da Nang, Hoi An & HCMC | 6N / 7D | From INR 33117 | https://www.caremytrip.com/package.html?id=vietnam-danang-7d
+- Amazing Ladakh with Turtuk | Leh, Nubra & Turtuk | 7N / 8D | On request | https://www.caremytrip.com/package.html?id=amazing-ladakh-turtuk
+- Kashmir Delight | Srinagar, Gulmarg & Pahalgam | 6N / 7D | On request | https://www.caremytrip.com/package.html?id=kashmir-delight
+- Marvelous Andaman 04N 05D | Port Blair & Havelock | 4N / 5D | On request | https://www.caremytrip.com/package.html?id=marvelous-andaman
+- Complete Golden Triangle | Delhi, Agra & Jaipur | 4N / 5D | On request | https://www.caremytrip.com/package.html?id=complete-golden-triangle
+- Cultural Triangle of Awadh | Ayodhya, Lucknow & Awadh | 5N / 6D | From INR 49000 | https://www.caremytrip.com/package.html?id=cultural-triangle-awadh
+- Shri Ramayana Yatra Tour Package | Ramayana Circuit | 10N / 11D | From INR 79900 | https://www.caremytrip.com/package.html?id=shri-ramayana-yatra
+
+## Blog Posts
+- Char Dham Yatra 2026 Complete Travel Guide | A practical guide to Char Dham Yatra routes, best season, package options, helicopter choices and planning tips from CareMyTrip. | https://www.caremytrip.com/blog.html?id=chardham-yatra-2026-guide
+- Kedarnath and Badrinath Do Dham Yatra Planning Guide | How to plan a Do Dham Yatra covering Kedarnath and Badrinath from Haridwar, Delhi or Dehradun. | https://www.caremytrip.com/blog.html?id=kedarnath-badrinath-do-dham-guide
+- Best Kerala Tour Package Itinerary for Families and Couples | Explore Munnar, Thekkady, Alleppey and Kovalam with a Kerala itinerary designed for comfort and value. | https://www.caremytrip.com/blog.html?id=best-kerala-tour-package-itinerary
+- Auli and Harsil Travel Guide for Uttarakhand Holidays | A quick guide to two scenic Uttarakhand holidays: Auli for snow and Harsil for quiet Himalayan stays. | https://www.caremytrip.com/blog.html?id=auli-harsil-uttarakhand-travel-guide

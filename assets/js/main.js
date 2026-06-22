@@ -3,6 +3,7 @@
   "use strict";
 
   var STORE_KEY = "cmt_packages_v1";
+  var BLOG_STORE_KEY = "cmt_blogs_v1";
 
   /* ---- data access: localStorage (admin edits) overrides baked data ---- */
   function allPackages() {
@@ -15,6 +16,16 @@
     } catch (e) { /* fall through to baked data */ }
     return (window.CMT && window.CMT.packages) || [];
   }
+  function allBlogs() {
+    try {
+      var raw = localStorage.getItem(BLOG_STORE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch (e) { /* fall through to baked data */ }
+    return (window.CMT && window.CMT.blogs) || [];
+  }
   function categories() { return (window.CMT && window.CMT.categories) || []; }
   function company() { return (window.CMT && window.CMT.company) || {}; }
   function catName(id) {
@@ -24,7 +35,10 @@
   function getPackage(id) {
     return allPackages().filter(function (p) { return p.id === id; })[0] || null;
   }
-  window.CMTApi = { allPackages: allPackages, getPackage: getPackage, STORE_KEY: STORE_KEY };
+  function getBlog(id) {
+    return allBlogs().filter(function (b) { return b.id === id; })[0] || null;
+  }
+  window.CMTApi = { allPackages: allPackages, allBlogs: allBlogs, getPackage: getPackage, getBlog: getBlog, STORE_KEY: STORE_KEY, BLOG_STORE_KEY: BLOG_STORE_KEY };
 
   /* ---- helpers ---- */
   function money(n) {
@@ -54,6 +68,23 @@
   function whatsappLink(text) {
     var num = (company().whatsapp || "").replace(/[^0-9]/g, "");
     return "https://wa.me/" + num + "?text=" + encodeURIComponent(text);
+  }
+
+  function blogCardHTML(b) {
+    return (
+      '<article class="card blog-card">' +
+        '<div class="thumb"><span class="badge cat">' + esc(b.category || "Travel Guide") + '</span>' +
+          '<a href="blog.html?id=' + encodeURIComponent(b.id) + '">' +
+            '<img src="' + esc(b.image) + '" alt="' + esc(b.title) + '" loading="lazy" width="650" height="400"></a>' +
+        '</div>' +
+        '<div class="body">' +
+          '<div class="meta"><span><i class="bi bi-calendar3" aria-hidden="true"></i> ' + esc(b.date || "") + '</span></div>' +
+          '<h3><a href="blog.html?id=' + encodeURIComponent(b.id) + '">' + esc(b.title) + '</a></h3>' +
+          '<p class="muted">' + esc(b.excerpt || "") + '</p>' +
+          '<div class="foot"><span class="row-sub">' + esc((b.tags || []).slice(0, 3).join(", ")) + '</span><a class="btn btn-primary btn-sm" href="blog.html?id=' + encodeURIComponent(b.id) + '">Read</a></div>' +
+        '</div>' +
+      '</article>'
+    );
   }
 
   /* ---- package card ---- */
@@ -133,6 +164,68 @@
       });
     }
     draw();
+  }
+
+  function renderBlogs() {
+    var grid = document.getElementById("blogs-grid");
+    if (!grid) return;
+    var input = document.getElementById("blog-search");
+    var state = { q: "" };
+    if (input) input.addEventListener("input", function () { state.q = this.value.toLowerCase(); draw(); });
+    function draw() {
+      var list = allBlogs().filter(function (b) {
+        if (b.status === "draft") return false;
+        var hay = [b.title, b.category, b.excerpt, (b.tags || []).join(" ")].join(" ").toLowerCase();
+        return !state.q || hay.indexOf(state.q) !== -1;
+      });
+      grid.innerHTML = list.length ? list.map(blogCardHTML).join("") : '<div class="empty">No blog posts found.</div>';
+      var count = document.getElementById("blog-result-count");
+      if (count) count.textContent = list.length + " article" + (list.length === 1 ? "" : "s");
+    }
+    draw();
+  }
+
+  function renderBlogDetail() {
+    var root = document.getElementById("blog-detail-root");
+    if (!root) return;
+    var id = new URLSearchParams(location.search).get("id");
+    var b = id && getBlog(id);
+    if (!b || b.status === "draft") {
+      root.innerHTML = '<div class="empty"><h2>Blog not found</h2><p>It may have moved. <a href="blogs.html">Browse all blogs</a>.</p></div>';
+      return;
+    }
+    document.title = (b.metaTitle || b.title) + " | CareMyTrip";
+    var meta = document.querySelector('meta[name="description"]');
+    if (meta && b.metaDescription) meta.setAttribute("content", b.metaDescription);
+    var bc = document.getElementById("blog-breadcrumb");
+    if (bc) bc.innerHTML = '<a href="index.html">Home</a> / <a href="blogs.html">Blogs</a> / ' + esc(b.title);
+    root.innerHTML =
+      '<article class="detail blog-detail">' +
+        '<div class="detail-hero"><img src="' + esc(b.image) + '" alt="' + esc(b.title) + '" width="900" height="500"></div>' +
+        '<div class="meta-row"><span><i class="bi bi-calendar3" aria-hidden="true"></i> <b>' + esc(b.date || "") + '</b></span><span><i class="bi bi-tag" aria-hidden="true"></i> <b>' + esc(b.category || "Travel Guide") + '</b></span></div>' +
+        '<h1>' + esc(b.title) + '</h1>' +
+        '<p class="pkg-summary">' + esc(b.excerpt || "") + '</p>' +
+        '<div class="blog-content">' + (b.content || "").split(/\n+/).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join("") + '</div>' +
+        ((b.tags || []).length ? '<p class="muted"><b>Tags:</b> ' + esc((b.tags || []).join(", ")) + '</p>' : '') +
+      '</article>';
+    injectBlogJsonLd(b);
+  }
+
+  function injectBlogJsonLd(b) {
+    var co = company();
+    var s = document.createElement("script");
+    s.type = "application/ld+json";
+    s.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": b.title,
+      "description": b.metaDescription || b.excerpt,
+      "image": co.url + b.image,
+      "datePublished": b.date,
+      "author": { "@type": "Organization", "name": co.name || "CareMyTrip" },
+      "publisher": { "@type": "Organization", "name": co.name || "CareMyTrip", "url": co.url }
+    });
+    document.head.appendChild(s);
   }
 
   /* ---- detail page ---- */
@@ -293,6 +386,8 @@
     renderFeatured();
     renderPackages();
     renderDetail();
+    renderBlogs();
+    renderBlogDetail();
     bindHomeSearch();
     bindEnquiry(document);
   });
