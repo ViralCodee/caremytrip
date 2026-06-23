@@ -219,6 +219,25 @@ section{padding:70px 0}
 .foot-bottom{border-top:1px solid rgba(255,255,255,.1);margin-top:48px;padding:20px 0;
   display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:13.5px}
 
+/* ---------- Certifications & Affiliations (auto marquee) ---------- */
+.affiliations{background:#fff;border-top:1px solid var(--line);padding:46px 0 50px}
+.aff-head{text-align:center;max-width:640px;margin:0 auto 26px}
+.aff-head h2{font-size:25px;margin:6px 0 8px}
+.aff-head .muted{font-size:14.5px}
+.marquee{overflow:hidden;position:relative;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.marquee-track{display:flex;align-items:center;gap:30px;width:max-content;
+  animation:aff-scroll 32s linear infinite;will-change:transform}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.aff-logo{flex:0 0 auto;width:180px;height:74px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.aff-logo img{max-width:100%;max-height:62px;width:auto;height:auto;opacity:.9;transition:opacity .25s,transform .25s}
+.aff-logo img:hover{opacity:1;transform:scale(1.05)}
+@keyframes aff-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){
+  .marquee-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto;gap:18px 30px}
+}
+
 /* ---------- Page banner (sub pages) ---------- */
 .page-banner{position:relative;color:#fff;text-align:center;padding:80px 20px;
   background:linear-gradient(rgba(8,24,40,.6),rgba(8,24,40,.6)),url('../img/1.jpg') center/cover}
