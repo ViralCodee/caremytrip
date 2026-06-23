@@ -718,7 +718,7 @@
     if (t && n) t.addEventListener("click", function () { n.classList.toggle("open"); });
   }
 
-  /* ---- google reviews carousel ---- */
+  /* ---- google reviews carousel (seamless marquee, same speed as affiliations) ---- */
   function renderReviews() {
     var track = document.getElementById("reviews-track");
     if (!track) return;
@@ -750,14 +750,25 @@
 
         track.innerHTML = html;
 
+        // Same seamless-marquee logic as bindAffiliations: clone the unit
+        // until it overflows ~2x the container, then run at constant 55px/s.
         setTimeout(function() {
-          var cards = Array.from(track.children);
-          cards.forEach(function(card) {
-            var clone = card.cloneNode(true);
-            clone.setAttribute("aria-hidden", "true");
-            track.appendChild(clone);
-          });
-          track.style.animationDuration = Math.max(30, Math.round((track.scrollWidth / 2) / 60)) + "s";
+          if (track.dataset.ready) return;
+          var carousel = track.parentElement;
+          var unit = Array.prototype.slice.call(track.children);
+          var unitWidth = track.scrollWidth;
+          if (!unitWidth || !unit.length) return;
+          var target = Math.max(carousel.offsetWidth || 0, window.innerWidth || 0, 1280);
+          var copies = Math.max(2, Math.ceil((target * 2) / unitWidth) + 1);
+          if (copies % 2) copies++;
+          for (var c = 1; c < copies; c++) {
+            unit.forEach(function (n) {
+              var clone = n.cloneNode(true);
+              clone.setAttribute("aria-hidden", "true");
+              track.appendChild(clone);
+            });
+          }
+          track.style.animationDuration = Math.max(20, Math.round((track.scrollWidth / 2) / 55)) + "s";
           track.dataset.ready = "1";
         }, 100);
       });
@@ -852,6 +863,52 @@
     play();
   }
 
+  /* ---- video reviews (about.html) ---- */
+  function renderVideoReviews() {
+    var grid = document.getElementById("vr-grid");
+    if (!grid) return;
+    var videos = (window.CMT && window.CMT.reviewVideos) || [];
+    if (!videos.length) {
+      grid.innerHTML = '<div class="vr-empty">' +
+        'Review videos coming soon. ' +
+        '<a href="https://www.youtube.com/@caremytripindia" target="_blank" rel="noopener" style="color:var(--primary);font-weight:700">' +
+        'Watch our travellers on YouTube →</a></div>';
+      return;
+    }
+    grid.innerHTML = videos.map(function (v, i) {
+      var src = "https://www.youtube.com/embed/" + esc(v.id) +
+        "?autoplay=1&mute=1&loop=1&playlist=" + esc(v.id) +
+        "&controls=0&modestbranding=1&rel=0&playsinline=1&enablejsapi=1";
+      return '<article class="vr-card" data-vid="' + esc(v.id) + '" data-idx="' + i + '">' +
+        '<span class="vr-badge"><i class="bi bi-record-circle-fill"></i> Live</span>' +
+        '<button class="vr-sound" type="button" aria-label="Toggle sound"><i class="bi bi-volume-mute-fill"></i></button>' +
+        '<iframe src="' + src + '" title="' + esc(v.title || "Traveller review") + '" ' +
+        'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>' +
+        '<div class="vr-meta"><h3>' + esc(v.title || "Traveller review") + '</h3>' +
+        (v.traveller ? '<span>' + esc(v.traveller) + '</span>' : '') +
+        '</div></article>';
+    }).join("");
+
+    grid.addEventListener("click", function (e) {
+      var card = e.target.closest(".vr-card");
+      if (!card) return;
+      var iframe = card.querySelector("iframe");
+      var soundBtn = card.querySelector(".vr-sound");
+      var icon = soundBtn ? soundBtn.querySelector("i") : null;
+      var muted = !card.classList.contains("unmuted");
+      var cmd = muted ? "unMute" : "mute";
+      try {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func: cmd, args: [] }),
+          "https://www.youtube.com"
+        );
+      } catch (_) { /* ignore */ }
+      card.classList.toggle("unmuted", muted);
+      card.classList.add("playing");
+      if (icon) icon.className = muted ? "bi bi-volume-up-fill" : "bi bi-volume-mute-fill";
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     bindNav();
     stampYear();
@@ -864,6 +921,7 @@
     bindEnquiry(document);
     bindHeroCarousel();
     renderReviews();
+    renderVideoReviews();
     bindAffiliations();
   });
 })();

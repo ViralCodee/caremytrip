@@ -23,7 +23,7 @@ window.CMT = {
       "https://www.facebook.com/caremytrip",
       "https://www.instagram.com/caremytrip",
       "https://www.linkedin.com/company/caremytrip",
-      "https://www.youtube.com/@caremytrip"
+      "https://www.youtube.com/@caremytripindia"
     ]
   },
   "defaults": {
@@ -506,5 +506,11 @@ window.CMT = {
       "category": "pilgrimage",
       "content": "The Chardham Yatra is one of the most important pilgrimages in Hinduism. Our complete guide covers best times to visit, routes, accommodations, and spiritual significance."
     }
-  ]
+  ],
+  /* Video review cards rendered on about.html.
+     Add { id, title, traveller } objects — `id` is the YouTube video ID
+     from a URL like https://www.youtube.com/watch?v=XXXXXXXXXXX.
+     Cards autoplay muted; click to unmute. Leave the array empty to show
+     a fallback link to the CareMyTrip YouTube channel. */
+  "reviewVideos": []
 };
