@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-label="VANI — Voluntary Action Network India">
-  <g>
-    <circle cx="34" cy="36" r="26" fill="#0e8c7a"/>
-    <path d="M34,22 C30,30 24,33 24,40 a10,10 0 0 0 20,0 C44,33 38,30 34,22 Z" fill="#fff"/>
-    <circle cx="34" cy="40" r="3.4" fill="#0e8c7a"/>
-  </g>
-  <text x="72" y="36" font-family="'Segoe UI',Arial,sans-serif" font-size="26" font-weight="800" letter-spacing="1" fill="#15479b">VANI</text>
-  <text x="72" y="52" font-family="'Segoe UI',Arial,sans-serif" font-size="9" letter-spacing="1.2" fill="#666">Voluntary Action Network India</text>
-</svg>

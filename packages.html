@@ -94,15 +94,47 @@
   <div class="breadcrumb"><a href="index.html">Home</a> / Tour Packages</div>
 </section>
 
-<section>
+<section class="pkg-section">
   <div class="container">
-    <div style="max-width:520px;margin:0 auto 26px">
+    <div style="max-width:520px;margin:0 auto 20px">
       <input id="list-search" type="search" placeholder="Search packages by name or destination…"
         style="width:100%;font-family:inherit;font-size:15px;padding:13px 16px;border:1px solid var(--line);border-radius:50px">
     </div>
-    <div class="chips" id="cat-chips"><!-- chips rendered by main.js --></div>
-    <p class="center muted" id="result-count" style="margin-bottom:24px"></p>
-    <div class="grid grid-3" id="packages-grid"><!-- rendered by main.js --></div>
+
+    <div class="filters-wrapper">
+      <div class="filters-section">
+        <h3>Destination</h3>
+        <div class="chips" id="cat-chips"></div>
+      </div>
+
+      <div class="filters-section">
+        <h3>Price Range</h3>
+        <div class="price-inputs">
+          <input type="number" id="price-min" placeholder="Min" min="0">
+          <span>—</span>
+          <input type="number" id="price-max" placeholder="Max" min="0">
+          <button id="price-clear" class="btn btn-ghost btn-sm">Clear</button>
+        </div>
+      </div>
+
+      <p class="center muted" id="result-count"></p>
+    </div>
+
+    <div class="items-control">
+      <label>Show: <select id="items-per-page"><option value="12">12</option><option value="24" selected>24</option><option value="48">48</option></select> per page</label>
+    </div>
+
+    <div class="grid grid-3" id="packages-grid"></div>
+
+    <div id="pagination" class="pagination-section">
+      <div class="pagination-buttons">
+        <button id="page-prev" class="btn btn-ghost">← Previous</button>
+        <div id="page-numbers" class="page-numbers"></div>
+        <button id="page-next" class="btn btn-ghost">Next →</button>
+      </div>
+      <p class="muted" id="page-info"></p>
+    </div>
+
     <noscript>
       <div class="empty">Enable JavaScript to filter packages, or <a href="contact.html">contact us</a> for the full list.</div>
     </noscript>
@@ -116,6 +148,28 @@
       <div style="display:flex;gap:12px;flex-wrap:wrap">
         <a class="btn btn-light" href="contact.html">Request a quote</a>
         <a class="btn btn-primary" href="https://wa.me/918527456666?text=Hi%20CareMyTrip%2C%20I%20want%20a%20custom%20itinerary" target="_blank" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="affiliations" aria-label="Our certifications and affiliations">
+  <div class="container">
+    <div class="aff-head">
+      <span class="eyebrow">Trusted &amp; recognised</span>
+      <h2>Our Certifications &amp; Affiliations</h2>
+      <p class="muted">Proud partners and members supporting responsible, memorable travel across India.</p>
+    </div>
+   <div class="marquee">
+      <div class="marquee-track">
+        <div class="aff-logo"><img src="assets/img/partners/1.png" alt="BookHelicopter.com" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/2.png" alt="Incredible India" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/3.png" alt="Uttarakhand Tourism" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/4.png" alt="Dekho Apna Desh" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/5.png" alt="VANI Welfare Society" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/6.png" alt="UKTTA Tourism" width="180" height="62" loading="lazy"></div>
+        <div class="aff-logo"><img src="assets/img/partners/7.png" alt="UKTTA Tourism" width="180" height="62" loading="lazy"></div>
+        
       </div>
     </div>
   </div>

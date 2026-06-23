@@ -119,13 +119,20 @@
     el.innerHTML = list.slice(0, 6).map(cardHTML).join("");
   }
 
-  /* ---- listing page with filter ---- */
+  /* ---- listing page with filter & pagination ---- */
   function renderPackages() {
     var grid = document.getElementById("packages-grid");
     if (!grid) return;
     var chipsEl = document.getElementById("cat-chips");
     var params = new URLSearchParams(location.search);
-    var state = { cat: params.get("cat") || "all", q: (params.get("q") || "").toLowerCase() };
+    var state = {
+      cat: params.get("cat") || "all",
+      q: (params.get("q") || "").toLowerCase(),
+      minPrice: null,
+      maxPrice: null,
+      itemsPerPage: 24,
+      currentPage: 1
+    };
 
     if (chipsEl) {
       var chips = ['<button class="chip" data-cat="all">All Packages</button>'];
@@ -137,6 +144,7 @@
         var b = e.target.closest(".chip");
         if (!b) return;
         state.cat = b.getAttribute("data-cat");
+        state.currentPage = 1;
         draw();
       });
     }
@@ -144,25 +152,139 @@
     var searchInput = document.getElementById("list-search");
     if (searchInput) {
       searchInput.value = params.get("q") || "";
-      searchInput.addEventListener("input", function () { state.q = this.value.toLowerCase(); draw(); });
+      searchInput.addEventListener("input", function () { state.q = this.value.toLowerCase(); state.currentPage = 1; draw(); });
+    }
+
+    var minPriceInput = document.getElementById("price-min");
+    var maxPriceInput = document.getElementById("price-max");
+    var priceClearBtn = document.getElementById("price-clear");
+    if (minPriceInput && maxPriceInput) {
+      minPriceInput.addEventListener("input", function () {
+        state.minPrice = this.value ? parseFloat(this.value) : null;
+        state.currentPage = 1;
+        draw();
+      });
+      maxPriceInput.addEventListener("input", function () {
+        state.maxPrice = this.value ? parseFloat(this.value) : null;
+        state.currentPage = 1;
+        draw();
+      });
+      if (priceClearBtn) {
+        priceClearBtn.addEventListener("click", function () {
+          minPriceInput.value = "";
+          maxPriceInput.value = "";
+          state.minPrice = null;
+          state.maxPrice = null;
+          state.currentPage = 1;
+          draw();
+        });
+      }
+    }
+
+    var itemsPerPageSelect = document.getElementById("items-per-page");
+    if (itemsPerPageSelect) {
+      itemsPerPageSelect.addEventListener("change", function () {
+        state.itemsPerPage = parseInt(this.value);
+        state.currentPage = 1;
+        draw();
+      });
     }
 
     function draw() {
-      var list = allPackages().filter(function (p) {
+      var allFiltered = allPackages().filter(function (p) {
         var okCat = state.cat === "all" || p.category === state.cat;
         var hay = (p.title + " " + p.destination + " " + catName(p.category)).toLowerCase();
         var okQ = !state.q || hay.indexOf(state.q) !== -1;
-        return okCat && okQ;
+        var okPrice = true;
+        if (p.price !== null) {
+          if (state.minPrice !== null && p.price < state.minPrice) okPrice = false;
+          if (state.maxPrice !== null && p.price > state.maxPrice) okPrice = false;
+        }
+        return okCat && okQ && okPrice;
       });
-      grid.innerHTML = list.length
-        ? list.map(cardHTML).join("")
-        : '<div class="empty">No packages match your search. <a href="packages.html">View all packages</a>.</div>';
+
+      var totalPages = Math.ceil(allFiltered.length / state.itemsPerPage);
+      if (state.currentPage > totalPages) state.currentPage = Math.max(1, totalPages);
+
+      var start = (state.currentPage - 1) * state.itemsPerPage;
+      var paginatedList = allFiltered.slice(start, start + state.itemsPerPage);
+
+      grid.innerHTML = paginatedList.length
+        ? paginatedList.map(cardHTML).join("")
+        : '<div class="empty">No packages match your filters. <a href="packages.html">View all packages</a>.</div>';
+
       var count = document.getElementById("result-count");
-      if (count) count.textContent = list.length + " package" + (list.length === 1 ? "" : "s");
+      if (count) count.textContent = allFiltered.length + " package" + (allFiltered.length === 1 ? "" : "s");
+
       if (chipsEl) Array.prototype.forEach.call(chipsEl.children, function (c) {
         c.classList.toggle("active", c.getAttribute("data-cat") === state.cat);
       });
+
+      drawPagination(totalPages);
     }
+
+    function drawPagination(totalPages) {
+      var paginationEl = document.getElementById("pagination");
+      var pageNumbersEl = document.getElementById("page-numbers");
+      var pageInfoEl = document.getElementById("page-info");
+      var pagePrevBtn = document.getElementById("page-prev");
+      var pageNextBtn = document.getElementById("page-next");
+
+      if (!paginationEl) return;
+
+      if (totalPages <= 1) {
+        paginationEl.classList.remove("show");
+        return;
+      }
+
+      paginationEl.classList.add("show");
+
+      var pageNumbers = [];
+      var start = Math.max(1, state.currentPage - 2);
+      var end = Math.min(totalPages, state.currentPage + 2);
+
+      if (start > 1) {
+        pageNumbers.push('<button class="page-num" data-page="1">1</button>');
+        if (start > 2) pageNumbers.push('<span style="padding:0 4px;color:var(--text-muted)">...</span>');
+      }
+
+      for (var i = start; i <= end; i++) {
+        var isActive = i === state.currentPage;
+        pageNumbers.push('<button class="page-num' + (isActive ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>');
+      }
+
+      if (end < totalPages) {
+        if (end < totalPages - 1) pageNumbers.push('<span style="padding:0 4px;color:var(--text-muted)">...</span>');
+        pageNumbers.push('<button class="page-num" data-page="' + totalPages + '">' + totalPages + '</button>');
+      }
+
+      if (pageNumbersEl) pageNumbersEl.innerHTML = pageNumbers.join("");
+
+      if (pageInfoEl) {
+        var showing = (state.currentPage - 1) * state.itemsPerPage + 1;
+        var to = Math.min(state.currentPage * state.itemsPerPage, document.querySelectorAll("#packages-grid article").length + ((state.currentPage - 1) * state.itemsPerPage));
+        pageInfoEl.textContent = "Page " + state.currentPage + " of " + totalPages;
+      }
+
+      if (pagePrevBtn) {
+        pagePrevBtn.disabled = state.currentPage === 1;
+        pagePrevBtn.style.opacity = state.currentPage === 1 ? "0.5" : "1";
+        pagePrevBtn.onclick = function () { if (state.currentPage > 1) { state.currentPage--; draw(); window.scrollTo(0, 0); } };
+      }
+
+      if (pageNextBtn) {
+        pageNextBtn.disabled = state.currentPage === totalPages;
+        pageNextBtn.style.opacity = state.currentPage === totalPages ? "0.5" : "1";
+        pageNextBtn.onclick = function () { if (state.currentPage < totalPages) { state.currentPage++; draw(); window.scrollTo(0, 0); } };
+      }
+
+      if (pageNumbersEl) {
+        Array.prototype.forEach.call(pageNumbersEl.querySelectorAll(".page-num"), function (btn) {
+          btn.onclick = function () { state.currentPage = parseInt(this.getAttribute("data-page")); draw(); window.scrollTo(0, 0); };
+        });
+      }
+    }
+
     draw();
   }
 
@@ -381,8 +503,10 @@
       var unit = Array.prototype.slice.call(track.children);
       var unitWidth = track.scrollWidth;
       if (!unitWidth || !unit.length) return;
-      // enough copies to overflow ~2x the viewport; keep even so the -50% loop is seamless
-      var copies = Math.max(2, Math.ceil((marquee.offsetWidth * 2) / unitWidth) + 1);
+      // target width with fallbacks (some engines report 0 for offscreen layout)
+      var target = Math.max(marquee.offsetWidth || 0, window.innerWidth || 0, 1280);
+      // enough copies to overflow ~2x the target; keep even so the -50% loop is seamless
+      var copies = Math.max(2, Math.ceil((target * 2) / unitWidth) + 1);
       if (copies % 2) copies++;
       for (var c = 1; c < copies; c++) {
         unit.forEach(function (n) {
@@ -471,5 +595,6 @@
     bindHomeSearch();
     bindEnquiry(document);
     bindHeroCarousel();
+    bindAffiliations();
   });
 })();

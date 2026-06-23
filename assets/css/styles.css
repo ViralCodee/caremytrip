@@ -163,6 +163,35 @@ section{padding:70px 0}
 .chip:hover{border-color:var(--primary);color:var(--primary)}
 .chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 
+/* ---------- Package section ---------- */
+.pkg-section{padding:28px 20px}
+
+/* ---------- Filters section ---------- */
+.filters-wrapper{background:var(--bg-soft);padding:20px;border-radius:var(--radius-sm);margin-bottom:20px}
+.filters-section{margin-bottom:16px}
+.filters-section:last-child{margin-bottom:0}
+.filters-section h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--ink)}
+.price-inputs{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.price-inputs input{width:70px;padding:6px;border:1px solid var(--line);border-radius:4px;font-size:13px;font-family:inherit}
+.price-inputs span{color:var(--muted);font-size:12px}
+.price-inputs .btn{font-size:12px;padding:6px 12px}
+
+/* ---------- Items per page ---------- */
+.items-control{display:flex;justify-content:flex-end;margin-bottom:16px}
+.items-control label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.items-control select{padding:5px 6px;border:1px solid var(--line);border-radius:4px;font-size:13px;font-family:inherit}
+
+/* ---------- Pagination ---------- */
+.pagination-section{text-align:center;margin-top:28px;padding-top:28px;border-top:1px solid var(--line);display:none}
+.pagination-section.show{display:block}
+.pagination-buttons{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.page-num{padding:6px 10px;border:1px solid var(--line);background:#fff;border-radius:4px;
+  cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink);transition:.2s}
+.page-num:hover{border-color:var(--primary);color:var(--primary)}
+.page-num.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+#page-prev,#page-next{margin:0 4px;font-size:13px;padding:6px 12px}
+#page-info{font-size:13px;margin:0}
+
 /* ---------- Destination tiles ---------- */
 .dest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
 .dest{position:relative;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4;box-shadow:var(--shadow-sm)}
@@ -353,4 +382,23 @@ section{padding:70px 0}
   .dest-grid::-webkit-scrollbar{display:none}
   #featured-grid>*{flex:0 0 84%;scroll-snap-align:center}
   .dest-grid>*{flex:0 0 70%;scroll-snap-align:center}
+
+  /* Package section mobile */
+  .pkg-section{padding:16px 20px}
+  .filters-wrapper{padding:14px;margin-bottom:14px}
+  .filters-section{margin-bottom:12px}
+  .filters-section h3{font-size:13px;margin-bottom:8px}
+  .price-inputs{gap:4px}
+  .price-inputs input{width:60px;padding:5px;font-size:12px}
+  .price-inputs .btn{font-size:11px;padding:5px 10px}
+  .items-control{margin-bottom:12px}
+  .items-control label{font-size:12px}
+  .items-control select{font-size:12px;padding:4px 5px}
+  .pagination-section{margin-top:20px;padding-top:20px}
+  .pagination-buttons{gap:4px;margin-bottom:10px}
+  .page-num{padding:5px 8px;font-size:12px}
+  #page-prev,#page-next{padding:5px 10px;font-size:12px;margin:0 2px}
+  #page-info{font-size:12px}
+  .chips{gap:6px}
+  .chip{padding:6px 12px;font-size:12px}
 }

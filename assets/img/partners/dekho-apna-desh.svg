@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-label="Dekho Apna Desh">
-  <g>
-    <rect x="74" y="11" width="92" height="4" rx="2" fill="#ff9933"/>
-    <rect x="74" y="57" width="92" height="4" rx="2" fill="#138808"/>
-    <circle cx="120" cy="59" r="3.2" fill="none" stroke="#0a3d91" stroke-width="1"/>
-  </g>
-  <text x="120" y="40" text-anchor="middle" font-family="'Nirmala UI','Noto Sans Devanagari','Mangal',sans-serif" font-weight="700" font-size="23" fill="#0a3d91">देखो अपना देश</text>
-  <text x="120" y="55" text-anchor="middle" font-family="'Segoe UI',Arial,sans-serif" font-size="9.5" letter-spacing="3.5" fill="#555">DEKHO APNA DESH</text>
-</svg>
