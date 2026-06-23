@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-label="bookhelicopter.com">
+  <g>
+    <line x1="8" y1="20" x2="60" y2="20" stroke="#2a3340" stroke-width="3.4" stroke-linecap="round"/>
+    <line x1="34" y1="20" x2="34" y2="28" stroke="#2a3340" stroke-width="3"/>
+    <path d="M16,38 Q16,28 30,28 L44,28 Q58,28 60,36 L40,42 Q24,44 16,38 Z" fill="#1a86d0"/>
+    <path d="M58,30 L78,26 L78,33 L60,37 Z" fill="#1a86d0"/>
+    <line x1="74" y1="20" x2="82" y2="30" stroke="#2a3340" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="30" cy="35" r="4.2" fill="#cdeafd"/>
+    <line x1="18" y1="48" x2="50" y2="48" stroke="#2a3340" stroke-width="2.6" stroke-linecap="round"/>
+    <line x1="24" y1="42" x2="26" y2="48" stroke="#2a3340" stroke-width="2.4"/>
+    <line x1="44" y1="42" x2="42" y2="48" stroke="#2a3340" stroke-width="2.4"/>
+  </g>
+  <text x="92" y="44" font-family="'Segoe UI',Arial,sans-serif" font-size="22" font-weight="700">
+    <tspan fill="#2a3340">book</tspan><tspan fill="#1a86d0">helicopter</tspan><tspan fill="#9aa3ad" font-weight="400">.com</tspan>
+  </text>
+</svg>
