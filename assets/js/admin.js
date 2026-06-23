@@ -7,6 +7,7 @@
  *   - All data reads/writes go through a small async layer (`api.*`) so the
  *     UI is decoupled from storage — easy to swap for a real REST API.
  *
+ * Security note: the password is a *client-side convenience lock*, not auth.
  */
 (function () {
   "use strict";
