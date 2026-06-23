@@ -6,7 +6,11 @@
 <title>Admin · CareMyTrip</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#13233a">
-<link rel="icon" type="image/png" href="../assets/img/logo.png">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/img/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../assets/img/apple-touch-icon.png">
+<link rel="manifest" href="../site.webmanifest">
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdn.datatables.net" crossorigin>
@@ -304,18 +308,29 @@
       <div class="adm-view" data-view="seo" hidden>
         <div class="adm-page-head">
           <div>
-            <h1>SEO &amp; LLM</h1>
-            <p class="muted">Regenerate <code>llms.txt</code>, <code>robots.txt</code> and <code>sitemap.xml</code> with current data.</p>
+            <h1>SEO &amp; AI / LLM</h1>
+            <p class="muted">Auto-generate <code>llms.txt</code>, <code>sitemap.xml</code> and <code>robots.txt</code> from your live packages &amp; blog. Built for AI answer engines (ChatGPT, Claude, Perplexity, Gemini) and search crawlers.</p>
           </div>
+          <div class="adm-page-actions">
+            <button class="btn btn-teal btn-sm" id="seo-refresh"><i class="bi bi-arrow-clockwise"></i> Regenerate all</button>
+            <button class="btn btn-primary btn-sm" id="seo-download-all"><i class="bi bi-download"></i> Download all</button>
+          </div>
+        </div>
+
+        <div class="notice info" style="margin-bottom:20px">
+          <i class="bi bi-magic"></i> These files are generated automatically from your current data — including local admin edits. Files in a browser can't be written to the server directly, so after generating, <b>download each file and commit it to your site root</b> to publish. <span id="seo-stamp" class="muted"></span>
         </div>
 
         <div class="adm-row one">
           <div class="adm-card">
-            <div class="adm-card-h"><h3><i class="bi bi-robot"></i> llms.txt</h3>
-              <button class="btn btn-primary btn-sm" id="gen-llms"><i class="bi bi-download"></i> Download llms.txt</button>
+            <div class="adm-card-h"><h3><i class="bi bi-robot"></i> llms.txt <span class="adm-pill">AI</span></h3>
+              <div class="adm-btn-group">
+                <button class="btn btn-ghost btn-sm" id="copy-llms"><i class="bi bi-clipboard"></i> Copy</button>
+                <button class="btn btn-primary btn-sm" id="gen-llms"><i class="bi bi-download"></i> Download</button>
+              </div>
             </div>
             <div class="adm-card-b">
-              <p class="muted">Includes Geo (Dehradun, Uttarakhand, India), SEO metadata, all packages and all published blog posts. Crawlable by AI systems and search engines.</p>
+              <p class="muted">An <a href="https://llmstxt.org/" target="_blank" rel="noopener">llms.txt</a> manifest: company &amp; Geo (Dehradun, Uttarakhand, India), SEO metadata, every tour package and every published blog post — so AI assistants can read and cite CareMyTrip accurately.</p>
               <pre id="llms-preview" class="adm-pre" aria-label="llms.txt preview"></pre>
             </div>
           </div>
@@ -324,19 +339,30 @@
         <div class="adm-row">
           <div class="adm-card">
             <div class="adm-card-h"><h3><i class="bi bi-diagram-3"></i> sitemap.xml</h3>
-              <button class="btn btn-primary btn-sm" id="gen-sitemap"><i class="bi bi-download"></i> Download</button>
+              <div class="adm-btn-group">
+                <button class="btn btn-ghost btn-sm" id="copy-sitemap"><i class="bi bi-clipboard"></i> Copy</button>
+                <button class="btn btn-primary btn-sm" id="gen-sitemap"><i class="bi bi-download"></i> Download</button>
+              </div>
             </div>
             <div class="adm-card-b">
-              <p class="muted">Home, packages, blog posts and category landing URLs.</p>
+              <p class="muted">Home, packages, blog posts and category landing URLs — with <code>&lt;lastmod&gt;</code> set to today. Add any extra URLs below (one per line); they're saved in this browser and merged in.</p>
+              <textarea id="sitemap-extra" class="adm-extra" rows="3" placeholder="https://www.caremytrip.com/offers.html&#10;https://www.caremytrip.com/gallery.html"></textarea>
+              <div class="adm-extra-actions">
+                <button class="btn btn-teal btn-sm" id="sitemap-apply"><i class="bi bi-check2"></i> Apply &amp; regenerate</button>
+                <span class="muted" id="sitemap-count"></span>
+              </div>
               <pre id="sitemap-preview" class="adm-pre"></pre>
             </div>
           </div>
           <div class="adm-card">
             <div class="adm-card-h"><h3><i class="bi bi-shield-check"></i> robots.txt</h3>
-              <button class="btn btn-primary btn-sm" id="gen-robots"><i class="bi bi-download"></i> Download</button>
+              <div class="adm-btn-group">
+                <button class="btn btn-ghost btn-sm" id="copy-robots"><i class="bi bi-clipboard"></i> Copy</button>
+                <button class="btn btn-primary btn-sm" id="gen-robots"><i class="bi bi-download"></i> Download</button>
+              </div>
             </div>
             <div class="adm-card-b">
-              <p class="muted">Allows all major crawlers including GPTBot, ClaudeBot, Google-Extended and PerplexityBot.</p>
+              <p class="muted">Allows all major crawlers and AI bots (GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, anthropic-ai, Google-Extended, PerplexityBot, CCBot) and points them at the sitemap.</p>
               <pre id="robots-preview" class="adm-pre"></pre>
             </div>
           </div>

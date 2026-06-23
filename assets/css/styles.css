@@ -207,6 +207,9 @@ section{padding:70px 0}
 .site-footer a:hover{color:#fff}
 .foot-brand .brand-text{color:#fff;font-size:24px;font-weight:800}
 .foot-brand .brand-text b{color:var(--accent)}
+.foot-logo{display:inline-block;line-height:0}
+.foot-logo img{height:46px;width:auto;filter:brightness(0) invert(1);opacity:.92;transition:opacity .2s}
+.foot-logo:hover img{opacity:1}
 .foot-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px}
 .foot-contact li{display:flex;gap:10px;margin-bottom:12px}
 .socials{display:flex;gap:12px;margin-top:16px}
@@ -304,11 +307,31 @@ section{padding:70px 0}
     padding:18px 20px;box-shadow:var(--shadow);gap:6px}
   .nav.open a{padding:10px 0;border-bottom:1px solid var(--line)}
   .nav-toggle{display:block}
-  .grid-3,.grid-4,.feat-grid,.dest-grid,.testi-grid,.contact-grid,.inc-grid,.form-card .row{grid-template-columns:1fr}
+  .grid-3,.grid-4,.feat-grid,.testi-grid,.contact-grid,.inc-grid,.form-card .row{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr;gap:28px}
+  .foot-grid>div{min-width:0}
+  .site-footer{overflow-wrap:break-word}
+  .foot-bottom{justify-content:flex-start}
   .searchbar{grid-template-columns:1fr;margin-top:-30px}
   .cta-band{flex-direction:column;text-align:center}
   .topbar{display:none}
   .hero-nav{display:none}
   .hero .container{padding:64px 20px 90px}
   .hero-dots{bottom:14px}
+
+  /* Homepage "Popular tour packages" & "Explore by destination"
+     become horizontal swipe sliders on phones */
+  #featured-grid,
+  .dest-grid{
+    display:flex;gap:14px;
+    overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    margin:0 -20px;padding:6px 20px 16px;
+    scrollbar-width:none;
+  }
+  #featured-grid::-webkit-scrollbar,
+  .dest-grid::-webkit-scrollbar{display:none}
+  #featured-grid>*{flex:0 0 84%;scroll-snap-align:center}
+  .dest-grid>*{flex:0 0 70%;scroll-snap-align:center}
 }

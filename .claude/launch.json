@@ -3,9 +3,15 @@
   "configurations": [
     {
       "name": "caremytrip-static",
-      "runtimeExecutable": "python3",
+      "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8123"],
       "port": 8123
+    },
+    {
+      "name": "caremytrip-fresh",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8124"],
+      "port": 8124
     }
   ]
 }

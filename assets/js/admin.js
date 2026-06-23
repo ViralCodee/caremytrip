@@ -17,6 +17,7 @@
   var PKG_KEY  = "cmt_packages_v1";
   var BLOG_KEY = "cmt_blogs_v1";
   var AUTH_KEY = "cmt_admin_ok";
+  var SITEMAP_EXTRA_KEY = "cmt_sitemap_extra";
   var SITE_URL = "https://www.caremytrip.com/";
 
   /* ---------- helpers ---------- */
@@ -490,31 +491,38 @@
     api.blogs.save(state.blogs).then(function () { renderBlogTable(); toast("Deleted.", "ok"); });
   }
 
-  /* ---------- SEO / LLM generation ---------- */
+  /* ---------- SEO / LLM generation ----------
+     llms.txt follows the llmstxt.org convention so AI answer engines
+     (ChatGPT, Claude, Perplexity, Gemini) can read and cite the site. */
   function genLlmsTxt() {
     var co = company();
     var addr = co.address || {};
     var pkgList = state.packages.length ? state.packages : (window.CMT && window.CMT.packages) || [];
     var blogList = state.blogs.length ? state.blogs : (window.CMT && window.CMT.blogs) || [];
+    var year = new Date().getFullYear();
 
     function pkgLine(p) {
       var price = p.price == null ? "On request" : "INR " + Number(p.price).toLocaleString("en-IN");
       var disc = p.discount ? " (" + p.discount + ")" : "";
-      return "- [" + p.title + "](" + SITE_URL + "package.html?id=" + p.id + ") — " +
-        (p.destination || "") + ", " + (p.duration || "") + ", " + price + disc + ". " +
-        (p.summary || "").replace(/\s+/g, " ");
+      var bits = [p.destination, p.duration, price + disc].filter(Boolean).join(", ");
+      var summary = (p.summary || "").replace(/\s+/g, " ").trim();
+      return "- [" + p.title + "](" + SITE_URL + "package.html?id=" + p.id + ") — " + bits + (summary ? ". " + summary : ".");
     }
     function blogLine(b) {
+      var summary = (b.excerpt || "").replace(/\s+/g, " ").trim();
       return "- [" + b.title + "](" + SITE_URL + "blog.html?id=" + b.id + ") — " +
-        (b.category || "Blog") + ", " + fmtDate(b.date) + ". " +
-        (b.excerpt || "").replace(/\s+/g, " ");
+        (b.category || "Blog") + ", " + fmtDate(b.date) + (summary ? ". " + summary : ".");
     }
+
+    var topics = categories().map(function (c) { return c.name; }).join(", ");
 
     var L = [];
     L.push("# " + (co.name || "CareMyTrip"));
     L.push("");
-    L.push("> " + (co.tagline || "") + " " + (co.legalName || co.name) +
-      " is a registered, Dehradun-based travel company (since 2013) specialising in Chardham Yatra, Himalayan and India tour packages.");
+    L.push("> " + (co.tagline || "") + ". " + (co.legalName || co.name) +
+      " is a registered, Dehradun-based travel company (since 2013) specialising in Chardham Yatra, Himalayan and India tour packages, plus select international trips.");
+    L.push("");
+    L.push("CareMyTrip plans pilgrimages and holidays end-to-end: stays, transport, darshan assistance and 24x7 support. Areas served: " + (co.countries || []).join(", ") + ".");
     L.push("");
     L.push("## Geo");
     L.push("- Country: India");
@@ -523,19 +531,23 @@
     L.push("- Postal code: " + (addr.postalCode || "248003"));
     L.push("- Coordinates: 30.3165° N, 78.0322° E");
     L.push("- Service area: " + (co.countries || []).join(", "));
+    L.push("- Time zone: Asia/Kolkata (UTC+5:30)");
     L.push("");
     L.push("## SEO");
     L.push("- Site: " + (co.url || SITE_URL));
     L.push("- Sitemap: " + (co.url || SITE_URL) + "sitemap.xml");
-    L.push("- Primary topics: Chardham Yatra, Kedarnath, Badrinath, Gangotri, Yamunotri, Auli, Harsil, Kerala, Nepal, Vietnam");
+    L.push("- Logo: " + (co.url || SITE_URL) + "assets/img/logo.png");
     L.push("- Language: en-IN");
-    L.push("- License: Content (c) " + new Date().getFullYear() + " " + (co.name || "CareMyTrip") + ". Crawl-friendly for GPTBot, ClaudeBot, Google-Extended, PerplexityBot.");
+    L.push("- Primary topics: " + topics);
+    L.push("- Audience: Indian and NRI travellers; pilgrims; families; senior citizens; honeymooners; group travellers");
+    L.push("- License: Content (c) " + year + " " + (co.name || "CareMyTrip") + ". Crawl-friendly for GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, anthropic-ai, Google-Extended, PerplexityBot, CCBot.");
+    L.push("- Structured data: TravelAgency, WebSite, BreadcrumbList, ItemList, TouristTrip, FAQPage, BlogPosting");
     L.push("");
     L.push("## Contact");
     L.push("- Phone: " + (co.phones || []).join(", "));
     L.push("- WhatsApp: " + (co.whatsapp || ""));
     L.push("- Email: " + (co.emails || []).join(", "));
-    L.push("- Address: " + (addr.street || "") + ", " + (addr.city || "") + ", " + (addr.region || "") + " " + (addr.postalCode || "") + ", India");
+    L.push("- Address: " + [addr.street, addr.city, addr.region, addr.postalCode].filter(Boolean).join(", ") + ", India");
     L.push("- GSTIN: " + (co.gstin || "") + " | CIN: " + (co.cin || ""));
     L.push("");
     L.push("## Tour packages");
@@ -546,56 +558,112 @@
     L.push("");
     L.push("## Key pages");
     L.push("- [All tour packages](" + SITE_URL + "packages.html)");
-    L.push("- [Blog](" + SITE_URL + "blogs.html)");
+    L.push("- [Travel blog](" + SITE_URL + "blogs.html)");
     L.push("- [About CareMyTrip](" + SITE_URL + "about.html)");
     L.push("- [Contact](" + SITE_URL + "contact.html)");
     return L.join("\n") + "\n";
   }
+  /* custom sitemap URLs — editable in the SEO view, saved per-browser */
+  function loadSitemapExtra() {
+    try { return localStorage.getItem(SITEMAP_EXTRA_KEY) || ""; } catch (e) { return ""; }
+  }
+  function saveSitemapExtra(text) {
+    try { localStorage.setItem(SITEMAP_EXTRA_KEY, text || ""); } catch (e) {}
+  }
+  function extraUrlList() {
+    return loadSitemapExtra().split("\n").map(function (x) { return x.trim(); })
+      .filter(function (x) { return x && /^https?:\/\//i.test(x); });
+  }
+  function xmlEsc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
   function genSitemap() {
     var pkgList = state.packages.length ? state.packages : (window.CMT && window.CMT.packages) || [];
     var blogList = (state.blogs.length ? state.blogs : (window.CMT && window.CMT.blogs) || []).filter(function (b) { return (b.status || "published") === "published"; });
     var d = today();
     var urls = [
-      { u: SITE_URL,                  p: 1.0 },
-      { u: SITE_URL + "packages.html", p: 0.9 },
-      { u: SITE_URL + "blogs.html",    p: 0.8 },
-      { u: SITE_URL + "about.html",    p: 0.6 },
-      { u: SITE_URL + "contact.html",  p: 0.6 }
+      { u: SITE_URL,                  p: "1.0" },
+      { u: SITE_URL + "packages.html", p: "0.9" },
+      { u: SITE_URL + "blogs.html",    p: "0.8" },
+      { u: SITE_URL + "about.html",    p: "0.6" },
+      { u: SITE_URL + "contact.html",  p: "0.6" }
     ];
-    pkgList.forEach(function (p) { urls.push({ u: SITE_URL + "package.html?id=" + encodeURIComponent(p.id), p: 0.7 }); });
-    blogList.forEach(function (b) { urls.push({ u: SITE_URL + "blog-post.html?id=" + encodeURIComponent(b.id), p: 0.7 }); });
-    categories().forEach(function (c) { urls.push({ u: SITE_URL + "packages.html?cat=" + encodeURIComponent(c.id), p: 0.6 }); });
+    pkgList.forEach(function (p) { urls.push({ u: SITE_URL + "package.html?id=" + encodeURIComponent(p.id), p: "0.7" }); });
+    blogList.forEach(function (b) { urls.push({ u: SITE_URL + "blog.html?id=" + encodeURIComponent(b.id), p: "0.7" }); });
+    categories().forEach(function (c) { urls.push({ u: SITE_URL + "packages.html?cat=" + encodeURIComponent(c.id), p: "0.6" }); });
+    extraUrlList().forEach(function (u) { urls.push({ u: u, p: "0.5" }); });
+
+    // de-duplicate by URL (first occurrence wins)
+    var seen = {}, uniq = [];
+    urls.forEach(function (x) { if (!seen[x.u]) { seen[x.u] = 1; uniq.push(x); } });
 
     var L = ['<?xml version="1.0" encoding="UTF-8"?>',
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'];
-    urls.forEach(function (x) {
-      L.push("  <url><loc>" + x.u + "</loc><lastmod>" + d + "</lastmod><priority>" + x.p + "</priority></url>");
+    uniq.forEach(function (x) {
+      L.push("  <url><loc>" + xmlEsc(x.u) + "</loc><lastmod>" + d + "</lastmod><priority>" + x.p + "</priority></url>");
     });
     L.push("</urlset>");
-    return L.join("\n");
+    return L.join("\n") + "\n";
   }
   function genRobots() {
     return [
       "User-agent: *", "Allow: /", "Disallow: /admin/", "",
-      "# AI / LLM crawlers",
+      "# AI / answer engines are welcome to read and cite our content",
       "User-agent: GPTBot", "Allow: /",
+      "User-agent: OAI-SearchBot", "Allow: /",
+      "User-agent: ChatGPT-User", "Allow: /",
       "User-agent: ClaudeBot", "Allow: /",
+      "User-agent: anthropic-ai", "Allow: /",
       "User-agent: Google-Extended", "Allow: /",
       "User-agent: PerplexityBot", "Allow: /",
-      "User-agent: anthropic-ai", "Allow: /",
       "User-agent: CCBot", "Allow: /",
       "",
       "Sitemap: " + SITE_URL + "sitemap.xml"
     ].join("\n") + "\n";
   }
 
+  function fmtDateTime(d) {
+    try { return d.toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }); }
+    catch (e) { return today(); }
+  }
+  function renderSeoPreviews() {
+    var llms = $("#llms-preview"), sm = $("#sitemap-preview"), rb = $("#robots-preview");
+    if (llms) llms.textContent = genLlmsTxt();
+    var sitemap = genSitemap();
+    if (sm) sm.textContent = sitemap;
+    if (rb) rb.textContent = genRobots();
+    var stamp = $("#seo-stamp");
+    if (stamp) stamp.textContent = "Last generated " + fmtDateTime(new Date()) + ".";
+    var cnt = $("#sitemap-count");
+    if (cnt) cnt.textContent = (sitemap.match(/<url>/g) || []).length + " URLs (" + extraUrlList().length + " custom).";
+  }
   function loadSeo() {
     return Promise.all([api.packages.list(), api.blogs.list()]).then(function (out) {
       state.packages = out[0]; state.blogs = out[1];
-      $("#llms-preview").textContent    = genLlmsTxt();
-      $("#sitemap-preview").textContent = genSitemap();
-      $("#robots-preview").textContent  = genRobots();
+      var extra = $("#sitemap-extra");
+      if (extra) extra.value = loadSitemapExtra();
+      renderSeoPreviews();
     });
+  }
+
+  /* clipboard with a legacy fallback for non-secure contexts (file://) */
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.top = "-9999px"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+  function copyText(text, okMsg) {
+    function done() { toast(okMsg || "Copied to clipboard.", "ok"); }
+    function fallback() { legacyCopy(text) ? done() : toast("Copy failed — select the text manually.", "err"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
   }
 
   /* ---------- settings ---------- */
@@ -700,6 +768,26 @@
     $("#gen-llms").addEventListener("click",    function () { download("llms.txt",   genLlmsTxt(), "text/plain"); });
     $("#gen-sitemap").addEventListener("click", function () { download("sitemap.xml", genSitemap(), "application/xml"); });
     $("#gen-robots").addEventListener("click",  function () { download("robots.txt", genRobots(), "text/plain"); });
+
+    $("#copy-llms").addEventListener("click",    function () { copyText(genLlmsTxt(),  "llms.txt copied."); });
+    $("#copy-sitemap").addEventListener("click", function () { copyText(genSitemap(),  "sitemap.xml copied."); });
+    $("#copy-robots").addEventListener("click",  function () { copyText(genRobots(),   "robots.txt copied."); });
+
+    $("#sitemap-apply").addEventListener("click", function () {
+      var extra = $("#sitemap-extra");
+      saveSitemapExtra(extra ? extra.value : "");
+      renderSeoPreviews();
+      toast("Sitemap updated with your custom URLs.", "ok");
+    });
+    $("#seo-refresh").addEventListener("click", function () {
+      loadSeo().then(function () { toast("Regenerated from current data.", "ok"); });
+    });
+    $("#seo-download-all").addEventListener("click", function () {
+      download("llms.txt",    genLlmsTxt(), "text/plain");
+      download("sitemap.xml", genSitemap(), "application/xml");
+      download("robots.txt",  genRobots(),  "text/plain");
+      toast("Downloaded llms.txt, sitemap.xml and robots.txt.", "ok");
+    });
 
     $("#settings-export-js").addEventListener("click",  exportDataJs);
     $("#settings-export-pkg").addEventListener("click", exportPkgJson);
