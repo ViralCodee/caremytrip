@@ -398,11 +398,18 @@
         '<p class="pkg-summary">' + esc(packageSummary(p)) + "</p>" +
         (hi ? '<h2>Highlights</h2><ul class="inc-list yes">' + hi + "</ul>" : "") +
         (itin ? '<h2>Day-wise Itinerary</h2><ul class="itin">' + itin + "</ul>" : "") +
+        '<div id="route-map-container" class="route-map-section"><h2>Journey Route</h2><div id="route-map" class="route-map"></div></div>' +
+        '<div class="detail-sections">' +
+          '<div class="detail-section"><h2>What to Expect</h2><p>This exclusive helicopter tour combines adventure with luxury. Experience world-class skiing at Auli with certified instructors, luxury mountain resort accommodations, and stunning Himalayan views. Perfect for both beginners and experienced skiers.</p></div>' +
+          '<div class="detail-section"><h2>Best Time to Visit</h2><p><b>November to March:</b> Peak skiing season with fresh snow and ideal weather conditions. Temperature ranges from -5°C to 5°C. Excellent visibility for helicopter rides and sightseeing.</p></div>' +
+          '<div class="detail-section"><h2>What to Pack</h2><ul class="inc-list yes"><li>Warm winter clothing (thermal wear, insulated jacket, wool sweaters)</li><li>Waterproof gloves and mittens</li><li>Winter boots and warm socks</li><li>Sunscreen and lip balm (UV protection at high altitude)</li><li>Ski goggles and helmet (provided but bring if preferred)</li><li>Camera for photography</li><li>Travel documents and insurance</li></ul></div>' +
+          '<div class="detail-section"><h2>Altitude & Acclimatization</h2><p><b>Auli Elevation:</b> 3,000-3,050 meters (9,843-10,007 feet). The area sits at a high altitude with crisp, fresh mountain air. Most travelers acclimatize quickly, but we recommend drinking plenty of water and taking it easy on day 1.</p></div>' +
+        '</div>' +
         (inc || exc ? '<h2>Inclusions &amp; Exclusions</h2><div class="inc-grid">' +
           '<div><h4>What\'s included</h4><ul class="inc-list yes">' + inc + "</ul></div>" +
           '<div><h4>Not included</h4><ul class="inc-list no">' + exc + "</ul></div></div>" : "") +
       "</div>" +
-      '<aside><div class="booking-card">' + priceBig +
+      '<aside><div class="booking-card" id="booking-card">' + priceBig +
         '<form class="enquiry-form" data-package="' + esc(p.title) + '">' +
           '<div class="form-row"><label>Name</label><input name="name" required></div>' +
           '<div class="form-row"><label>Phone</label><input name="phone" required></div>' +
@@ -412,10 +419,112 @@
         "</form>" +
         '<a class="btn btn-teal btn-block" style="margin-top:10px" href="' + whatsappLink(quoteText) + '" target="_blank" rel="noopener"><i class="bi bi-whatsapp" aria-hidden="true"></i> Enquire on WhatsApp</a>' +
         '<a class="btn btn-ghost btn-block" style="margin-top:10px" href="tel:' + esc((company().phones || [""])[0]) + '"><i class="bi bi-telephone" aria-hidden="true"></i> ' + esc((company().phones || [""])[0]) + "</a>" +
-      "</div></aside></div>";
+        '<button type="button" class="btn-close" id="booking-close" aria-label="Close form">✕</button>' +
+      "</div></aside>" +
+      '<button class="mobile-enquiry-btn" id="mobile-enquiry-btn">Enquiry</button>' +
+      "</div>";
 
+    bindMobileEnquiry();
     bindEnquiry(root);
+    renderRouteMap(p);
     injectDetailJsonLd(p);
+  }
+
+  /* ---- route map rendering ---- */
+  function renderRouteMap(p) {
+    var mapContainer = document.getElementById("route-map");
+    if (!mapContainer) return;
+
+    // Define route points for different packages
+    var routeData = {
+      "auli-by-heli": {
+        name: "Auli by Helicopter",
+        points: [
+          {name: "Delhi/Dehradun", x: 20, y: 50, day: "Start"},
+          {name: "Helipad", x: 35, y: 40, day: "Day 1"},
+          {name: "Auli", x: 70, y: 30, day: "Day 2-3"},
+          {name: "Return", x: 85, y: 50, day: "Day 4"}
+        ]
+      },
+      "chardham-by-heli": {
+        name: "Chardham Yatra by Helicopter",
+        points: [
+          {name: "Start", x: 15, y: 50, day: "Day 1"},
+          {name: "Yamunotri", x: 30, y: 30, day: "Day 2"},
+          {name: "Gangotri", x: 45, y: 25, day: "Day 3"},
+          {name: "Kedarnath", x: 60, y: 40, day: "Day 4"},
+          {name: "Badrinath", x: 80, y: 35, day: "Day 5-6"}
+        ]
+      },
+      "nepal-triangle-tour": {
+        name: "Nepal Triangle Tour",
+        points: [
+          {name: "Kathmandu", x: 30, y: 35, day: "Day 1-2"},
+          {name: "Pokhara", x: 50, y: 55, day: "Day 3-4"},
+          {name: "Bhaktapur", x: 35, y: 25, day: "Day 5"},
+          {name: "Return", x: 30, y: 35, day: "Day 5"}
+        ]
+      }
+    };
+
+    var data = routeData[p.id] || routeData["auli-by-heli"];
+    var svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><style>.route-line{stroke:var(--primary);stroke-width:2;fill:none;stroke-dasharray:5,5}</style></defs>' +
+      '<rect width="100" height="100" fill="transparent"/>';
+
+    // Draw route lines
+    for (var i = 0; i < data.points.length - 1; i++) {
+      svg += '<line class="route-line" x1="' + data.points[i].x + '" y1="' + data.points[i].y +
+             '" x2="' + data.points[i+1].x + '" y2="' + data.points[i+1].y + '"/>';
+    }
+
+    // Draw points
+    data.points.forEach(function(pt, idx) {
+      var isStart = idx === 0;
+      var isEnd = idx === data.points.length - 1;
+      var color = isStart ? '#ff7a1a' : isEnd ? '#0e8c7a' : '#5b6ef7';
+
+      svg += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="3" fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
+             '<text x="' + (pt.x + 6) + '" y="' + (pt.y - 2) + '" font-size="3" font-weight="bold" fill="#333">' + esc(pt.name) + '</text>' +
+             '<text x="' + (pt.x + 6) + '" y="' + (pt.y + 3) + '" font-size="2.5" fill="#999">' + esc(pt.day) + '</text>';
+    });
+
+    svg += '</svg>';
+    mapContainer.innerHTML = svg;
+  }
+
+  /* ---- mobile enquiry button toggle ---- */
+  function bindMobileEnquiry() {
+    var bookingCard = document.getElementById("booking-card");
+    var mobileBtn = document.getElementById("mobile-enquiry-btn");
+    var closeBtn = document.getElementById("booking-close");
+    if (!bookingCard || !mobileBtn) return;
+
+    var isFirstVisit = !localStorage.getItem("cmt_enquiry_opened");
+    var isMobile = window.innerWidth < 760;
+
+    if (isMobile && isFirstVisit) {
+      setTimeout(function () {
+        bookingCard.classList.add("visible");
+        localStorage.setItem("cmt_enquiry_opened", "true");
+      }, 5000);
+    }
+
+    mobileBtn.addEventListener("click", function () {
+      bookingCard.classList.toggle("visible");
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        bookingCard.classList.remove("visible");
+      });
+    }
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth >= 760) {
+        bookingCard.classList.remove("visible");
+      }
+    });
   }
 
   /* ---- enquiry form -> WhatsApp ---- */
@@ -493,6 +602,51 @@
     var t = document.querySelector(".nav-toggle");
     var n = document.querySelector(".nav");
     if (t && n) t.addEventListener("click", function () { n.classList.toggle("open"); });
+  }
+
+  /* ---- google reviews carousel ---- */
+  function renderReviews() {
+    var track = document.getElementById("reviews-track");
+    if (!track) return;
+
+    fetch("assets/data/reviews.json")
+      .then(function(r) { return r.json(); })
+      .catch(function() { return {reviews: []}; })
+      .then(function(data) {
+        var reviews = (data.reviews || []).slice(0, 50);
+
+        var html = reviews.map(function(r) {
+          var stars = '<div class="review-stars">';
+          for (var i = 0; i < 5; i++) {
+            stars += '<i class="bi bi-star-fill" style="color:var(--gold)"></i>';
+          }
+          stars += '<span class="rating-text">' + r.rating + '</span></div>';
+
+          return '<div class="review-card">' +
+            '<div class="review-header">' +
+              '<img src="' + esc(r.image) + '" alt="' + esc(r.name) + '" class="review-avatar" width="48" height="48" loading="lazy">' +
+              '<div class="review-info">' +
+                '<h4>' + esc(r.name) + '</h4>' +
+                stars +
+              '</div>' +
+            '</div>' +
+            '<p class="review-text">' + esc(r.text) + '</p>' +
+          '</div>';
+        }).join("");
+
+        track.innerHTML = html;
+
+        setTimeout(function() {
+          var cards = Array.from(track.children);
+          cards.forEach(function(card) {
+            var clone = card.cloneNode(true);
+            clone.setAttribute("aria-hidden", "true");
+            track.appendChild(clone);
+          });
+          track.style.animationDuration = Math.max(30, Math.round((track.scrollWidth / 2) / 60)) + "s";
+          track.dataset.ready = "1";
+        }, 100);
+      });
   }
 
   /* ---- affiliations marquee: clone the logo set for a seamless infinite loop ---- */
@@ -595,6 +749,7 @@
     bindHomeSearch();
     bindEnquiry(document);
     bindHeroCarousel();
+    renderReviews();
     bindAffiliations();
   });
 })();

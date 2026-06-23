@@ -1,0 +1,420 @@
+{
+  "reviews": [
+    {
+      "name": "Priya Sharma",
+      "rating": 5,
+      "text": "Amazing experience with CareMyTrip! The Chardham Yatra was perfectly planned. Every detail was taken care of. Highly recommend!",
+      "image": "https://ui-avatars.com/api/?name=Priya+Sharma&background=0e8c7a&color=fff&size=64",
+      "destination": "Chardham Yatra",
+      "date": "2026-05-15"
+    },
+    {
+      "name": "Rajesh Kumar",
+      "rating": 5,
+      "text": "Best Kerala package ever. The team went above and beyond to make our honeymoon memorable. Will definitely book again!",
+      "image": "https://ui-avatars.com/api/?name=Rajesh+Kumar&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-05-12"
+    },
+    {
+      "name": "Anjali Patel",
+      "rating": 5,
+      "text": "Helicopter tour of Auli was breathtaking! Professional team, excellent coordination. Worth every penny!",
+      "image": "https://ui-avatars.com/api/?name=Anjali+Patel&background=0e8c7a&color=fff&size=64",
+      "destination": "Auli",
+      "date": "2026-05-10"
+    },
+    {
+      "name": "Vikram Singh",
+      "rating": 4.8,
+      "text": "Nepal tour exceeded expectations. Great guides, comfortable stays, and fantastic itinerary. Thank you CareMyTrip!",
+      "image": "https://ui-avatars.com/api/?name=Vikram+Singh&background=ff7a1a&color=fff&size=64",
+      "destination": "Nepal",
+      "date": "2026-05-08"
+    },
+    {
+      "name": "Deepa Verma",
+      "rating": 5,
+      "text": "Family trip to Kedarnath was incredible. The team took care of everything from permits to accommodations. Highly satisfied!",
+      "image": "https://ui-avatars.com/api/?name=Deepa+Verma&background=0e8c7a&color=fff&size=64",
+      "destination": "Kedarnath",
+      "date": "2026-05-05"
+    },
+    {
+      "name": "Amit Desai",
+      "rating": 5,
+      "text": "Vietnam tour was fantastic! Great beaches, delicious food, and wonderful guides. CareMyTrip made it hassle-free!",
+      "image": "https://ui-avatars.com/api/?name=Amit+Desai&background=0e8c7a&color=fff&size=64",
+      "destination": "Vietnam",
+      "date": "2026-05-01"
+    },
+    {
+      "name": "Sneha Gupta",
+      "rating": 5,
+      "text": "Badrinath tour was spiritually fulfilling. The arrangements were impeccable. Highly professional team!",
+      "image": "https://ui-avatars.com/api/?name=Sneha+Gupta&background=ff7a1a&color=fff&size=64",
+      "destination": "Badrinath",
+      "date": "2026-04-28"
+    },
+    {
+      "name": "Ravi Prabhakar",
+      "rating": 5,
+      "text": "Harsil village tour was magical! The natural beauty and local experiences were unforgettable. Kudos to the team!",
+      "image": "https://ui-avatars.com/api/?name=Ravi+Prabhakar&background=0e8c7a&color=fff&size=64",
+      "destination": "Harsil",
+      "date": "2026-04-25"
+    },
+    {
+      "name": "Pooja Nair",
+      "rating": 4.9,
+      "text": "Kerala backwaters package was perfect! Beautiful scenery, great accommodation, and excellent service throughout.",
+      "image": "https://ui-avatars.com/api/?name=Pooja+Nair&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-04-22"
+    },
+    {
+      "name": "Sanjay Malhotra",
+      "rating": 5,
+      "text": "Chardham helicopter tour was a dream come true! Professional pilots, safe flights, and stunning views throughout!",
+      "image": "https://ui-avatars.com/api/?name=Sanjay+Malhotra&background=0e8c7a&color=fff&size=64",
+      "destination": "Chardham",
+      "date": "2026-04-20"
+    },
+    {
+      "name": "Kavya Singh",
+      "rating": 5,
+      "text": "Uttarakhand adventure package was the best! Trekking, camping, and local cuisine - everything was perfect!",
+      "image": "https://ui-avatars.com/api/?name=Kavya+Singh&background=ff7a1a&color=fff&size=64",
+      "destination": "Uttarakhand",
+      "date": "2026-04-18"
+    },
+    {
+      "name": "Nikhil Reddy",
+      "rating": 5,
+      "text": "Kedarnath yatra was spiritual and well-organized. The guide was knowledgeable and caring. Worth recommending!",
+      "image": "https://ui-avatars.com/api/?name=Nikhil+Reddy&background=0e8c7a&color=fff&size=64",
+      "destination": "Kedarnath",
+      "date": "2026-04-15"
+    },
+    {
+      "name": "Ritika Bhat",
+      "rating": 5,
+      "text": "Auli skiing trip was absolutely amazing! Professional instructors, comfortable lodging, perfect weather!",
+      "image": "https://ui-avatars.com/api/?name=Ritika+Bhat&background=ff7a1a&color=fff&size=64",
+      "destination": "Auli",
+      "date": "2026-04-12"
+    },
+    {
+      "name": "Akshay Verma",
+      "rating": 4.8,
+      "text": "Nepal adventure exceeded all expectations. Great value for money and exceptional customer service!",
+      "image": "https://ui-avatars.com/api/?name=Akshay+Verma&background=0e8c7a&color=fff&size=64",
+      "destination": "Nepal",
+      "date": "2026-04-10"
+    },
+    {
+      "name": "Megha Patel",
+      "rating": 5,
+      "text": "Best family vacation ever! CareMyTrip made travel planning so easy. Kids loved every moment!",
+      "image": "https://ui-avatars.com/api/?name=Megha+Patel&background=ff7a1a&color=fff&size=64",
+      "destination": "Family Tour",
+      "date": "2026-04-08"
+    },
+    {
+      "name": "Arjun Menon",
+      "rating": 5,
+      "text": "Kumbh Mela tour was spiritually enriching. Perfect organization for such a massive event!",
+      "image": "https://ui-avatars.com/api/?name=Arjun+Menon&background=0e8c7a&color=fff&size=64",
+      "destination": "Kumbh Mela",
+      "date": "2026-04-05"
+    },
+    {
+      "name": "Isha Kapoor",
+      "rating": 5,
+      "text": "Honeymoon package in Kerala was romantic and perfectly planned. Created memories for lifetime!",
+      "image": "https://ui-avatars.com/api/?name=Isha+Kapoor&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-04-02"
+    },
+    {
+      "name": "Rohit Gupta",
+      "rating": 5,
+      "text": "Corporate retreat in Mussoorie was phenomenal. Team building activities perfectly executed!",
+      "image": "https://ui-avatars.com/api/?name=Rohit+Gupta&background=0e8c7a&color=fff&size=64",
+      "destination": "Mussoorie",
+      "date": "2026-03-30"
+    },
+    {
+      "name": "Nisha Deshmukh",
+      "rating": 5,
+      "text": "Vietnam tour packages are the best value for money. Experienced guides and comfortable travels throughout!",
+      "image": "https://ui-avatars.com/api/?name=Nisha+Deshmukh&background=ff7a1a&color=fff&size=64",
+      "destination": "Vietnam",
+      "date": "2026-03-28"
+    },
+    {
+      "name": "Manish Joshi",
+      "rating": 4.9,
+      "text": "Chardham pilgrimage tour was organized beautifully. All logistics handled professionally!",
+      "image": "https://ui-avatars.com/api/?name=Manish+Joshi&background=0e8c7a&color=fff&size=64",
+      "destination": "Chardham",
+      "date": "2026-03-25"
+    },
+    {
+      "name": "Ananya Chatterjee",
+      "rating": 5,
+      "text": "Gangotri trek was thrilling! Great camping facilities and experienced mountain guides!",
+      "image": "https://ui-avatars.com/api/?name=Ananya+Chatterjee&background=ff7a1a&color=fff&size=64",
+      "destination": "Gangotri",
+      "date": "2026-03-22"
+    },
+    {
+      "name": "Vikram Krishnan",
+      "rating": 5,
+      "text": "Yamunotri pilgrimage was spiritual and hassle-free. Excellent accommodation and guide service!",
+      "image": "https://ui-avatars.com/api/?name=Vikram+Krishnan&background=0e8c7a&color=fff&size=64",
+      "destination": "Yamunotri",
+      "date": "2026-03-20"
+    },
+    {
+      "name": "Divya Iyer",
+      "rating": 5,
+      "text": "Harsil village experience was magical! Nature, hospitality, and great food all combined!",
+      "image": "https://ui-avatars.com/api/?name=Divya+Iyer&background=ff7a1a&color=fff&size=64",
+      "destination": "Harsil",
+      "date": "2026-03-18"
+    },
+    {
+      "name": "Harshit Sharma",
+      "rating": 5,
+      "text": "Auli helicopter tour gave breathtaking aerial views. Professional and safe flying experience!",
+      "image": "https://ui-avatars.com/api/?name=Harshit+Sharma&background=0e8c7a&color=fff&size=64",
+      "destination": "Auli Helicopter",
+      "date": "2026-03-15"
+    },
+    {
+      "name": "Preeti Gupta",
+      "rating": 5,
+      "text": "Nepal tour was well-coordinated. Great hotels, tasty food, and knowledgeable local guides!",
+      "image": "https://ui-avatars.com/api/?name=Preeti+Gupta&background=ff7a1a&color=fff&size=64",
+      "destination": "Nepal",
+      "date": "2026-03-12"
+    },
+    {
+      "name": "Suresh Krishnan",
+      "rating": 5,
+      "text": "Kerala backwaters cruise was absolutely serene. Perfect honeymoon destination with CareMyTrip!",
+      "image": "https://ui-avatars.com/api/?name=Suresh+Krishnan&background=0e8c7a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-03-10"
+    },
+    {
+      "name": "Shalini Roy",
+      "rating": 5,
+      "text": "Badrinath ji ki pad parikrama was fulfilling. Safe travel and spiritual experience combined!",
+      "image": "https://ui-avatars.com/api/?name=Shalini+Roy&background=ff7a1a&color=fff&size=64",
+      "destination": "Badrinath",
+      "date": "2026-03-08"
+    },
+    {
+      "name": "Abhinav Singh",
+      "rating": 5,
+      "text": "Vietnam adventure was incredible! Great value tours with experienced English-speaking guides!",
+      "image": "https://ui-avatars.com/api/?name=Abhinav+Singh&background=0e8c7a&color=fff&size=64",
+      "destination": "Vietnam",
+      "date": "2026-03-05"
+    },
+    {
+      "name": "Diya Nambiar",
+      "rating": 5,
+      "text": "Mussoorie family vacation was perfect! Lots of activities for kids and comfortable stays!",
+      "image": "https://ui-avatars.com/api/?name=Diya+Nambiar&background=ff7a1a&color=fff&size=64",
+      "destination": "Mussoorie",
+      "date": "2026-03-02"
+    },
+    {
+      "name": "Prakash Verma",
+      "rating": 5,
+      "text": "Kumbh Mela experience was once in a lifetime! Perfectly organized and safely managed!",
+      "image": "https://ui-avatars.com/api/?name=Prakash+Verma&background=0e8c7a&color=fff&size=64",
+      "destination": "Kumbh Mela",
+      "date": "2026-02-28"
+    },
+    {
+      "name": "Sakshi Bhatnagar",
+      "rating": 5,
+      "text": "Uttarakhand adventure tour was thrilling! Trekking, camping, and local culture - awesome!",
+      "image": "https://ui-avatars.com/api/?name=Sakshi+Bhatnagar&background=ff7a1a&color=fff&size=64",
+      "destination": "Uttarakhand",
+      "date": "2026-02-25"
+    },
+    {
+      "name": "Arun Pancholi",
+      "rating": 5,
+      "text": "Chardham Yatra by helicopter was the best decision. Saved time and had amazing views!",
+      "image": "https://ui-avatars.com/api/?name=Arun+Pancholi&background=0e8c7a&color=fff&size=64",
+      "destination": "Chardham Helicopter",
+      "date": "2026-02-22"
+    },
+    {
+      "name": "Neha Chopra",
+      "rating": 5,
+      "text": "Kedarnath pilgrimage was spiritually awakening. CareMyTrip handled everything professionally!",
+      "image": "https://ui-avatars.com/api/?name=Neha+Chopra&background=ff7a1a&color=fff&size=64",
+      "destination": "Kedarnath",
+      "date": "2026-02-20"
+    },
+    {
+      "name": "Rishab Malik",
+      "rating": 5,
+      "text": "Nepal Kathmandu and Pokhara tour was fantastic. Great hotels and experienced tour guides!",
+      "image": "https://ui-avatars.com/api/?name=Rishab+Malik&background=0e8c7a&color=fff&size=64",
+      "destination": "Nepal",
+      "date": "2026-02-18"
+    },
+    {
+      "name": "Ishita Saxena",
+      "rating": 5,
+      "text": "Kerala tour with houseboat stay was romantic and peaceful. Perfect for couples!",
+      "image": "https://ui-avatars.com/api/?name=Ishita+Saxena&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-02-15"
+    },
+    {
+      "name": "Rohan Saxena",
+      "rating": 4.8,
+      "text": "Auli skiing expedition was thrilling! Professional instructors made learning fun!",
+      "image": "https://ui-avatars.com/api/?name=Rohan+Saxena&background=0e8c7a&color=fff&size=64",
+      "destination": "Auli",
+      "date": "2026-02-12"
+    },
+    {
+      "name": "Priya Bansal",
+      "rating": 5,
+      "text": "Vietnam Hanoi Halong Bay tour was memorable. Great photography opportunities throughout!",
+      "image": "https://ui-avatars.com/api/?name=Priya+Bansal&background=ff7a1a&color=fff&size=64",
+      "destination": "Vietnam",
+      "date": "2026-02-10"
+    },
+    {
+      "name": "Ankit Sinha",
+      "rating": 5,
+      "text": "Harsil luxury stay was beyond expectations. Nature at its best with comfortable amenities!",
+      "image": "https://ui-avatars.com/api/?name=Ankit+Sinha&background=0e8c7a&color=fff&size=64",
+      "destination": "Harsil",
+      "date": "2026-02-08"
+    },
+    {
+      "name": "Geetha Murthy",
+      "rating": 5,
+      "text": "Gangotri pilgrimage was well-organized. Helpful guides and safe mountain travel!",
+      "image": "https://ui-avatars.com/api/?name=Geetha+Murthy&background=ff7a1a&color=fff&size=64",
+      "destination": "Gangotri",
+      "date": "2026-02-05"
+    },
+    {
+      "name": "Rahul Desai",
+      "rating": 5,
+      "text": "Yamunotri trek was adventurous and safe. Best guides and porters in the business!",
+      "image": "https://ui-avatars.com/api/?name=Rahul+Desai&background=0e8c7a&color=fff&size=64",
+      "destination": "Yamunotri",
+      "date": "2026-02-02"
+    },
+    {
+      "name": "Sonali Verma",
+      "rating": 5,
+      "text": "Mussoorie adventure trip was fun-filled. Great activities and comfortable accommodations!",
+      "image": "https://ui-avatars.com/api/?name=Sonali+Verma&background=ff7a1a&color=fff&size=64",
+      "destination": "Mussoorie",
+      "date": "2026-01-30"
+    },
+    {
+      "name": "Varun Chopra",
+      "rating": 5,
+      "text": "Badrinath Yatra was spiritual journey of lifetime. Team's dedication was commendable!",
+      "image": "https://ui-avatars.com/api/?name=Varun+Chopra&background=0e8c7a&color=fff&size=64",
+      "destination": "Badrinath",
+      "date": "2026-01-28"
+    },
+    {
+      "name": "Kritika Jain",
+      "rating": 5,
+      "text": "Kerala honeymoon package was perfect! Romantic venues and excellent service throughout!",
+      "image": "https://ui-avatars.com/api/?name=Kritika+Jain&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-01-25"
+    },
+    {
+      "name": "Siddharth Rao",
+      "rating": 5,
+      "text": "Nepal tour included best local experiences. Amazing food and cultural immersion!",
+      "image": "https://ui-avatars.com/api/?name=Siddharth+Rao&background=0e8c7a&color=fff&size=64",
+      "destination": "Nepal",
+      "date": "2026-01-22"
+    },
+    {
+      "name": "Ananya Verma",
+      "rating": 5,
+      "text": "Vietnam adventure was perfectly paced. Not too rushed, great time to explore each place!",
+      "image": "https://ui-avatars.com/api/?name=Ananya+Verma&background=ff7a1a&color=fff&size=64",
+      "destination": "Vietnam",
+      "date": "2026-01-20"
+    },
+    {
+      "name": "Nitin Gupta",
+      "rating": 5,
+      "text": "Chardham circuit tour was the highlight of my year. Professional team all the way!",
+      "image": "https://ui-avatars.com/api/?name=Nitin+Gupta&background=0e8c7a&color=fff&size=64",
+      "destination": "Chardham",
+      "date": "2026-01-18"
+    },
+    {
+      "name": "Pooja Singh",
+      "rating": 5,
+      "text": "Auli skiing adventure was exhilarating! Perfect for beginners and experienced skiers!",
+      "image": "https://ui-avatars.com/api/?name=Pooja+Singh&background=ff7a1a&color=fff&size=64",
+      "destination": "Auli",
+      "date": "2026-01-15"
+    },
+    {
+      "name": "Harman Kaur",
+      "rating": 5,
+      "text": "Uttarakhand nature tour showed me the beauty of the Himalayas like never before!",
+      "image": "https://ui-avatars.com/api/?name=Harman+Kaur&background=0e8c7a&color=fff&size=64",
+      "destination": "Uttarakhand",
+      "date": "2026-01-12"
+    },
+    {
+      "name": "Sameer Patel",
+      "rating": 5,
+      "text": "Kerala backwaters experience was tranquil and rejuvenating. Exactly what I needed!",
+      "image": "https://ui-avatars.com/api/?name=Sameer+Patel&background=ff7a1a&color=fff&size=64",
+      "destination": "Kerala",
+      "date": "2026-01-10"
+    },
+    {
+      "name": "Richa Bhatnagar",
+      "rating": 5,
+      "text": "Kumbh Mela pilgrimage was once-in-a-lifetime. Best organized and safest experience!",
+      "image": "https://ui-avatars.com/api/?name=Richa+Bhatnagar&background=0e8c7a&color=fff&size=64",
+      "destination": "Kumbh Mela",
+      "date": "2026-01-08"
+    },
+    {
+      "name": "Arjun Verma",
+      "rating": 5,
+      "text": "Harsil village tour gave authentic Himalayan experience. Perfect peace and quiet!",
+      "image": "https://ui-avatars.com/api/?name=Arjun+Verma&background=ff7a1a&color=fff&size=64",
+      "destination": "Harsil",
+      "date": "2026-01-05"
+    },
+    {
+      "name": "Divya Sharma",
+      "rating": 5,
+      "text": "Nepal and India tour combined was the ultimate experience. Diverse cultures and landscapes!",
+      "image": "https://ui-avatars.com/api/?name=Divya+Sharma&background=0e8c7a&color=fff&size=64",
+      "destination": "Nepal & India",
+      "date": "2026-01-02"
+    }
+  ]
+}
