@@ -430,67 +430,181 @@
     injectDetailJsonLd(p);
   }
 
-  /* ---- route map rendering ---- */
+  /* ---- route map rendering with Leaflet ---- */
   function renderRouteMap(p) {
     var mapContainer = document.getElementById("route-map");
     if (!mapContainer) return;
 
-    // Define route points for different packages
+    // Define detailed routes based on itinerary
     var routeData = {
       "auli-by-heli": {
-        name: "Auli by Helicopter",
+        center: [30.35, 79.0],
+        zoom: 8,
+        title: "Auli Helicopter Journey",
         points: [
-          {name: "Delhi/Dehradun", x: 20, y: 50, day: "Start"},
-          {name: "Helipad", x: 35, y: 40, day: "Day 1"},
-          {name: "Auli", x: 70, y: 30, day: "Day 2-3"},
-          {name: "Return", x: 85, y: 50, day: "Day 4"}
+          {name: "Dehradun", lat: 30.1947, lng: 78.1462, day: 1, title: "Arrival & Helicopter Transfer", desc: "Meet at helipad and fly to Auli"},
+          {name: "Auli Resort", lat: 30.5135, lng: 79.6147, day: "2-3", title: "Skiing & Mountain Activities", desc: "Skiing lessons & cable car rides"},
+          {name: "Dehradun", lat: 30.1947, lng: 78.1462, day: 4, title: "Departure", desc: "Return helicopter flight"}
         ]
       },
       "chardham-by-heli": {
-        name: "Chardham Yatra by Helicopter",
+        center: [30.5, 79.5],
+        zoom: 7,
+        title: "Chardham Yatra Route",
         points: [
-          {name: "Start", x: 15, y: 50, day: "Day 1"},
-          {name: "Yamunotri", x: 30, y: 30, day: "Day 2"},
-          {name: "Gangotri", x: 45, y: 25, day: "Day 3"},
-          {name: "Kedarnath", x: 60, y: 40, day: "Day 4"},
-          {name: "Badrinath", x: 80, y: 35, day: "Day 5-6"}
+          {name: "Yamunotri", lat: 30.88, lng: 78.50, day: 1, title: "Yamunotri", desc: "First sacred shrine"},
+          {name: "Gangotri", lat: 30.98, lng: 79.08, day: 2, title: "Gangotri", desc: "Source of Ganges"},
+          {name: "Kedarnath", lat: 30.73, lng: 79.57, day: 3, title: "Kedarnath", desc: "Lord Shiva shrine"},
+          {name: "Badrinath", lat: 30.745, lng: 79.49, day: "4-5", title: "Badrinath", desc: "Final sacred site"}
         ]
       },
       "nepal-triangle-tour": {
-        name: "Nepal Triangle Tour",
+        center: [27.7, 85.0],
+        zoom: 7,
+        title: "Nepal Triangle Tour",
         points: [
-          {name: "Kathmandu", x: 30, y: 35, day: "Day 1-2"},
-          {name: "Pokhara", x: 50, y: 55, day: "Day 3-4"},
-          {name: "Bhaktapur", x: 35, y: 25, day: "Day 5"},
-          {name: "Return", x: 30, y: 35, day: "Day 5"}
+          {name: "Kathmandu", lat: 27.7172, lng: 85.3240, day: "1-2", title: "Kathmandu", desc: "Cultural heritage"},
+          {name: "Pokhara", lat: 28.2096, lng: 83.9856, day: "3-4", title: "Pokhara", desc: "Lakes & mountains"},
+          {name: "Bhaktapur", lat: 27.6720, lng: 85.8318, day: 5, title: "Bhaktapur", desc: "Ancient city"}
+        ]
+      },
+      "chardham-yatra-by-land": {
+        center: [30.5, 79.5],
+        zoom: 7,
+        title: "Chardham Yatra (Land Route)",
+        points: [
+          {name: "Haridwar", lat: 29.9457, lng: 78.1642, day: 1, title: "Haridwar", desc: "Journey begins"},
+          {name: "Chopta", lat: 30.3333, lng: 79.5667, day: 2, title: "Chopta", desc: "Yamunotri access"},
+          {name: "Uttarkashi", lat: 30.7333, lng: 78.8, day: "4-5", title: "Uttarkashi", desc: "Gangotri gateway"},
+          {name: "Guptkashi", lat: 30.1, lng: 79.1833, day: "6-7", title: "Guptkashi", desc: "Kedarnath access"},
+          {name: "Auli", lat: 30.5135, lng: 79.6147, day: "8-9", title: "Auli region", desc: "Mountain views"}
+        ]
+      },
+      "helicopter-to-harsil": {
+        center: [30.35, 79.0],
+        zoom: 8,
+        title: "Harsil Helicopter Tour",
+        points: [
+          {name: "Delhi/Dehradun", lat: 30.1947, lng: 78.1462, day: 1, title: "Arrival", desc: "Meet & greet"},
+          {name: "Harsil", lat: 30.44, lng: 78.82, day: "2-3", title: "Harsil", desc: "Apple orchards & luxury lodge"},
+          {name: "Dehradun", lat: 30.1947, lng: 78.1462, day: 4, title: "Departure", desc: "Return flight"}
+        ]
+      },
+      "nepal-triangle-tour": {
+        center: [27.7, 85.0],
+        zoom: 7,
+        title: "Nepal Triangle",
+        points: [
+          {name: "Kathmandu", lat: 27.7172, lng: 85.3240, day: "1-2", title: "Kathmandu", desc: "Capital city"},
+          {name: "Pokhara", lat: 28.2096, lng: 83.9856, day: "3-4", title: "Pokhara", desc: "Lakeside town"},
+          {name: "Bhaktapur", lat: 27.6720, lng: 85.8318, day: 5, title: "Bhaktapur", desc: "Ancient capital"}
+        ]
+      },
+      "kailash-mansarovar": {
+        center: [31.5, 81.5],
+        zoom: 6,
+        title: "Kailash Mansarovar Yatra",
+        points: [
+          {name: "Delhi", lat: 28.6139, lng: 77.2090, day: 1, title: "Delhi", desc: "Start point"},
+          {name: "Kathmandu", lat: 27.7172, lng: 85.3240, day: "2-3", title: "Kathmandu", desc: "Nepal transit"},
+          {name: "Lhasa", lat: 29.6470, lng: 91.1130, day: "4-6", title: "Lhasa", desc: "Tibet entry"},
+          {name: "Mount Kailash", lat: 31.5000, lng: 81.5000, day: "7-12", title: "Kailash", desc: "Sacred mountain"}
+        ]
+      },
+      "golden-triangle-with-kashmir": {
+        center: [28.5, 78.5],
+        zoom: 6,
+        title: "Golden Triangle + Kashmir",
+        points: [
+          {name: "Delhi", lat: 28.6139, lng: 77.2090, day: "1-2", title: "Delhi", desc: "Start"},
+          {name: "Agra", lat: 27.1767, lng: 78.0081, day: "3-4", title: "Agra", desc: "Taj Mahal"},
+          {name: "Jaipur", lat: 26.9124, lng: 75.7873, day: "5-6", title: "Jaipur", desc: "Pink city"},
+          {name: "Srinagar", lat: 34.0837, lng: 74.7973, day: "7-8", title: "Srinagar", desc: "Kashmir"}
+        ]
+      },
+      "ramayana-yatra": {
+        center: [25.5, 80.0],
+        zoom: 6,
+        title: "Ramayana Yatra",
+        points: [
+          {name: "Ayodhya", lat: 26.8124, lng: 82.0065, day: "1-2", title: "Ayodhya", desc: "Ram Janmabhoomi"},
+          {name: "Lucknow", lat: 26.8467, lng: 80.9462, day: 3, title: "Lucknow", desc: "Awadh capital"},
+          {name: "Varanasi", lat: 25.3176, lng: 82.9739, day: "4-5", title: "Varanasi", desc: "Sacred Ganges"},
+          {name: "Chitrakoot", lat: 25.1395, lng: 80.8714, day: 6, title: "Chitrakoot", desc: "Ram vanvas"}
+        ]
+      },
+      "valley-of-flowers": {
+        center: [30.6, 79.5],
+        zoom: 8,
+        title: "Valley of Flowers Trek",
+        points: [
+          {name: "Rishikesh", lat: 30.0869, lng: 78.2676, day: 1, title: "Rishikesh", desc: "Yoga capital"},
+          {name: "Auli", lat: 30.5135, lng: 79.6147, day: 2, title: "Auli", desc: "Hill station"},
+          {name: "Valley of Flowers", lat: 30.7167, lng: 79.6, day: "3-4", title: "Valley", desc: "Flower trek"},
+          {name: "Hemkund Sahib", lat: 30.7833, lng: 79.6167, day: 5, title: "Hemkund", desc: "Sacred lake"}
+        ]
+      },
+      "awadh-triangle-tour": {
+        center: [27.0, 80.5],
+        zoom: 7,
+        title: "Awadh Triangle Tour",
+        points: [
+          {name: "Ayodhya", lat: 26.8124, lng: 82.0065, day: 1, title: "Ayodhya", desc: "Ram city"},
+          {name: "Lucknow", lat: 26.8467, lng: 80.9462, day: "2-3", title: "Lucknow", desc: "Awadh legacy"},
+          {name: "Varanasi", lat: 25.3176, lng: 82.9739, day: 4, title: "Varanasi", desc: "Holy city"}
         ]
       }
     };
 
     var data = routeData[p.id] || routeData["auli-by-heli"];
-    var svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs><style>.route-line{stroke:var(--primary);stroke-width:2;fill:none;stroke-dasharray:5,5}</style></defs>' +
-      '<rect width="100" height="100" fill="transparent"/>';
 
-    // Draw route lines
-    for (var i = 0; i < data.points.length - 1; i++) {
-      svg += '<line class="route-line" x1="' + data.points[i].x + '" y1="' + data.points[i].y +
-             '" x2="' + data.points[i+1].x + '" y2="' + data.points[i+1].y + '"/>';
-    }
+    // Initialize Leaflet map
+    var map = L.map(mapContainer, {scrollWheelZoom: true}).setView(data.center, data.zoom);
 
-    // Draw points
+    // Add OpenStreetMap tiles (hide attribution)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: false,
+      maxZoom: 19
+    }).addTo(map);
+
+    // Hide leaflet attribution
+    map.attributionControl.remove();
+
+    // Draw route line
+    var coords = data.points.map(function(pt) { return [pt.lat, pt.lng]; });
+    var polyline = L.polyline(coords, {
+      color: '#0e8c7a',
+      weight: 3,
+      opacity: 0.7
+    }).addTo(map);
+
+    // Add day markers
+    var bounds = L.latLngBounds();
     data.points.forEach(function(pt, idx) {
-      var isStart = idx === 0;
-      var isEnd = idx === data.points.length - 1;
-      var color = isStart ? '#ff7a1a' : isEnd ? '#0e8c7a' : '#5b6ef7';
+      var dayNum = typeof pt.day === 'number' ? pt.day : pt.day.split('-')[0];
+      var icon = L.divIcon({
+        html: '<div style="background:#0e8c7a;color:#fff;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.35);font-family:Poppins,sans-serif">' + dayNum + '</div>',
+        iconSize: [46, 46],
+        className: 'day-marker'
+      });
 
-      svg += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="3" fill="' + color + '" stroke="#fff" stroke-width="2"/>' +
-             '<text x="' + (pt.x + 6) + '" y="' + (pt.y - 2) + '" font-size="3" font-weight="bold" fill="#333">' + esc(pt.name) + '</text>' +
-             '<text x="' + (pt.x + 6) + '" y="' + (pt.y + 3) + '" font-size="2.5" fill="#999">' + esc(pt.day) + '</text>';
+      var marker = L.marker([pt.lat, pt.lng], {icon: icon}).addTo(map);
+      marker.bindPopup(
+        '<div style="font-size:13px;min-width:180px">' +
+        '<strong style="color:#0e8c7a;font-size:14px">' + esc(pt.name) + '</strong><br>' +
+        '<em style="color:#666">Day ' + pt.day + '</em><br><br>' +
+        '<strong>' + esc(pt.title) + '</strong><br>' +
+        '<p style="margin:8px 0 0;color:#666;font-size:12px">' + esc(pt.desc) + '</p>' +
+        '</div>'
+      );
+
+      bounds.extend([pt.lat, pt.lng]);
     });
 
-    svg += '</svg>';
-    mapContainer.innerHTML = svg;
+    // Fit all points in view
+    if (bounds.isValid()) {
+      map.fitBounds(bounds, {padding: [40, 40], maxZoom: data.zoom});
+    }
   }
 
   /* ---- mobile enquiry button toggle ---- */
