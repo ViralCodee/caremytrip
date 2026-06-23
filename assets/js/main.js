@@ -373,6 +373,30 @@
     if (t && n) t.addEventListener("click", function () { n.classList.toggle("open"); });
   }
 
+  /* ---- affiliations marquee: clone the logo set for a seamless infinite loop ---- */
+  function bindAffiliations() {
+    Array.prototype.forEach.call(document.querySelectorAll(".marquee-track"), function (track) {
+      if (track.dataset.ready) return;
+      var marquee = track.parentElement;
+      var unit = Array.prototype.slice.call(track.children);
+      var unitWidth = track.scrollWidth;
+      if (!unitWidth || !unit.length) return;
+      // enough copies to overflow ~2x the viewport; keep even so the -50% loop is seamless
+      var copies = Math.max(2, Math.ceil((marquee.offsetWidth * 2) / unitWidth) + 1);
+      if (copies % 2) copies++;
+      for (var c = 1; c < copies; c++) {
+        unit.forEach(function (n) {
+          var clone = n.cloneNode(true);
+          clone.setAttribute("aria-hidden", "true");
+          track.appendChild(clone);
+        });
+      }
+      // constant speed (~55px/s) regardless of how many logos
+      track.style.animationDuration = Math.max(20, Math.round((track.scrollWidth / 2) / 55)) + "s";
+      track.dataset.ready = "1";
+    });
+  }
+
   /* ---- year stamp ---- */
   function stampYear() {
     document.querySelectorAll("[data-year]").forEach(function (el) {
