@@ -15,7 +15,7 @@
     },
     {
       "name": "caremytrip-nocache",
-      "runtimeExecutable": "python",
+      "runtimeExecutable": "python3",
       "runtimeArgs": ["artifacts/serve.py", "8125"],
       "port": 8125
     }

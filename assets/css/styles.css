@@ -31,9 +31,28 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;font-family:var(--font);color:var(--ink);background:var(--bg);
+  margin:0;font-family:var(--font);color:var(--ink);
+  background:var(--bg);
   line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased;
 }
+
+/* ---------- Line-art texture system ----------
+   A faint sketch background sits under the whole page via body::before.
+   Per-section overrides further down add scene-specific textures so
+   content stays readable while every block feels like illustrated paper. */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background-image:url('../img/textures/5.jpg');
+  background-size:1100px auto;
+  background-position:center top;
+  background-repeat:repeat;
+  opacity:.08;
+  pointer-events:none;
+}
+.topbar, .site-header, .hero, section, .site-footer, .searchbar{position:relative;z-index:1}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 h1,h2,h3,h4{margin:0 0 .5em;line-height:1.2;font-weight:800;letter-spacing:-.01em}
@@ -127,7 +146,15 @@ section{padding:70px 0}
 .section-head .eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:13px}
 .section-head h2{font-size:clamp(26px,3.5vw,40px);margin-top:8px}
 .section-head p{color:var(--muted)}
-.bg-soft{background:var(--bg-soft)}
+.bg-soft{
+  background-color:var(--bg-soft);
+  background-image:
+    linear-gradient(rgba(245,248,250,.86), rgba(245,248,250,.86)),
+    url('../img/textures/3.jpg');
+  background-size:auto, cover;
+  background-position:center, center;
+  background-repeat:no-repeat, no-repeat;
+}
 
 /* ---------- Package / tour cards ---------- */
 .grid{display:grid;gap:26px}
@@ -193,7 +220,16 @@ section{padding:70px 0}
 #page-info{font-size:13px;margin:0}
 
 /* ---------- Reviews carousel ---------- */
-.reviews-section{padding:60px 20px;background:#fff}
+.reviews-section{
+  padding:60px 20px;
+  background-color:#fff;
+  background-image:
+    linear-gradient(rgba(255,255,255,.9), rgba(255,255,255,.9)),
+    url('../img/textures/1.jpg');
+  background-size:auto, cover;
+  background-position:center, center;
+  background-repeat:no-repeat, no-repeat;
+}
 .reviews-carousel{position:relative;overflow:hidden;margin-top:32px}
 .reviews-track{display:flex;gap:24px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;animation:aff-scroll 30s linear infinite;padding:12px 0;scrollbar-width:thin}
 .reviews-track::-webkit-scrollbar{height:6px}
@@ -242,13 +278,52 @@ section{padding:70px 0}
 .testi .who span{font-size:13px;color:var(--muted)}
 
 /* ---------- CTA band ---------- */
-.cta-band{background:linear-gradient(120deg,var(--primary),var(--primary-d));color:#fff;border-radius:var(--radius);
-  padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.cta-band{
+  background:linear-gradient(120deg,var(--primary),var(--primary-d));
+  color:#fff;border-radius:var(--radius);
+  padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  position:relative;overflow:hidden;isolation:isolate;
+}
+.cta-band::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  background-image:url('../img/textures/7.jpg');
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  opacity:.22;
+  mix-blend-mode:overlay;
+  pointer-events:none;
+}
+.cta-band > *{position:relative;z-index:1}
 .cta-band h2{margin:0;font-size:28px}
 .cta-band p{margin:6px 0 0;color:#d9f1ec}
 
 /* ---------- Footer ---------- */
-.site-footer{background:var(--ink);color:#aebfd0;padding:64px 0 0;font-size:14.5px}
+.site-footer{
+  color:#aebfd0;
+  padding:64px 0 0;
+  font-size:14.5px;
+  background-color:var(--ink);
+  background-image:url('../img/textures/3.jpg');
+  background-size:1300px auto;
+  background-position:center center;
+  background-repeat:repeat;
+  background-blend-mode:soft-light;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+}
+.site-footer::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(rgba(19,35,58,.86), rgba(19,35,58,.86));
+  pointer-events:none;
+}
 .foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.4fr;gap:36px}
 .site-footer h4{color:#fff;font-size:16px;margin-bottom:18px}
 .site-footer a{color:#aebfd0}
@@ -268,7 +343,17 @@ section{padding:70px 0}
   display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:13.5px}
 
 /* ---------- Certifications & Affiliations (auto marquee) ---------- */
-.affiliations{background:#fff;border-top:1px solid var(--line);padding:46px 0 50px}
+.affiliations{
+  border-top:1px solid var(--line);
+  padding:46px 0 50px;
+  background-color:#fff;
+  background-image:
+    linear-gradient(rgba(255,255,255,.88), rgba(255,255,255,.88)),
+    url('../img/textures/5.jpg');
+  background-size:auto, 1200px auto;
+  background-position:center, center;
+  background-repeat:no-repeat, repeat-x;
+}
 .aff-head{text-align:center;max-width:640px;margin:0 auto 26px}
 .aff-head h2{font-size:25px;margin:6px 0 8px}
 .aff-head .muted{font-size:14.5px}
