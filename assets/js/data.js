@@ -193,7 +193,13 @@ window.CMT = {
       "rating": 4.85,
       "reviews": 526,
       "featured": true,
-      "image": "assets/img/packages/Chardham_Yatra_by_Land_.jpeg",
+      "image": "assets/img/packages/chardham-land-badrinath-temple.jpg",
+      "gallery": [
+        {"src": "assets/img/packages/chardham-land-badrinath-temple.jpg", "alt": "Pilgrims gathered at the colourful Badrinath Temple, Uttarakhand"},
+        {"src": "assets/img/packages/chardham-land-kedarnath-darshan.jpg", "alt": "CareMyTrip travellers offering prayers at Kedarnath Dham"},
+        {"src": "assets/img/packages/chardham-land-gangotri-family.jpg", "alt": "Family at Gangotri Temple during the Chardham Yatra"},
+        {"src": "assets/img/packages/chardham-land-temple-rain.jpg", "alt": "Ancient Himalayan temple with prayer flags in the rain"}
+      ],
       "summary": "The classic Chardham pilgrimage by comfortable road journey. Visit all four sacred dhams with ample time for prayers and exploration. Comfort accommodations, nourishing meals, and expert guidance ensure a meaningful spiritual experience.",
       "highlights": [
         "All four dhams with comfortable travel",
@@ -433,7 +439,13 @@ window.CMT = {
       "rating": 4.92,
       "reviews": 178,
       "featured": true,
-      "image": "assets/img/packages/Valley_of_Flowers_.jpeg",
+      "image": "assets/img/packages/valley-of-flowers-bloom.jpg",
+      "gallery": [
+        {"src": "assets/img/packages/valley-of-flowers-bloom.jpg", "alt": "Pink wildflowers carpeting the Valley of Flowers with Himalayan peaks behind"},
+        {"src": "assets/img/packages/valley-of-flowers-trekker.jpg", "alt": "Trekker admiring blooming meadows in the Valley of Flowers National Park"},
+        {"src": "assets/img/packages/valley-of-flowers-sonamarg-meadow.jpg", "alt": "Horses grazing in an alpine meadow below snow-capped Himalayan mountains"},
+        {"src": "assets/img/packages/valley-of-flowers-glacier-trek.jpg", "alt": "Trekkers crossing a glacier on the Valley of Flowers trail"}
+      ],
       "summary": "Trek through nature's flower-carpeted meadows. Visit the stunning Valley of Flowers National Park and the sacred Hemkund Sahib temple. This package includes expert trekking guides, comfortable lodges, and nutritious meals. Perfect for nature lovers and adventure seekers.",
       "highlights": [
         "Trek through Valley of Flowers (Jul-Sep peak bloom)",

@@ -388,6 +388,12 @@ section{padding:70px 0}
 .detail-grid{display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start}
 .detail-hero{border-radius:var(--radius);overflow:hidden;margin-bottom:26px}
 .detail-hero img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.pkg-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 28px}
+.gallery-item{display:block;border-radius:var(--radius-sm);overflow:hidden;box-shadow:var(--shadow-sm);
+  aspect-ratio:3/2;background:var(--bg-soft)}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+.gallery-item:hover img{transform:scale(1.06)}
+@media(max-width:600px){.pkg-gallery{grid-template-columns:repeat(2,1fr);gap:8px}}
 .detail h1{font-size:clamp(26px,3.5vw,38px)}
 .detail .meta-row{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted);margin-bottom:24px;font-size:15px}
 .detail .meta-row b{color:var(--ink)}
@@ -598,10 +604,12 @@ aside{position:sticky;top:78px;height:fit-content;z-index:40}
     border-top:1px solid var(--line);border-bottom:0;max-height:85vh;overflow-y:auto;
     transform:translateY(100%);transition:transform .3s ease;padding:20px;display:none}
   .booking-card.visible{transform:translateY(0);display:block}
-  .mobile-enquiry-btn{display:fixed;bottom:20px;right:20px;width:60px;height:60px;border-radius:50%;
+  .mobile-enquiry-btn{position:fixed;bottom:50px;right:20px;width:62px;height:62px;border-radius:50%;
     background:var(--primary);color:#fff;border:none;font-weight:700;cursor:pointer;font-size:12px;
-    box-shadow:var(--shadow);z-index:998;padding:10px;display:flex;align-items:center;justify-content:center;
-    flex-direction:column;line-height:1.1}
+    box-shadow:0 6px 20px rgba(14,140,122,.45);z-index:995;padding:10px;display:flex;align-items:center;
+    justify-content:center;flex-direction:column;line-height:1.1;-webkit-tap-highlight-color:transparent}
   .mobile-enquiry-btn:active{transform:scale(.95)}
+  /* hidden while the booking form is open so the two never overlap */
+  .detail-grid:has(.booking-card.visible) .mobile-enquiry-btn{display:none}
   .btn-close{display:flex}
 }

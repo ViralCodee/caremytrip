@@ -74,14 +74,14 @@
     return (
       '<article class="card blog-card">' +
         '<div class="thumb"><span class="badge cat">' + esc(b.category || "Travel Guide") + '</span>' +
-          '<a href="blog.html?id=' + encodeURIComponent(b.id) + '">' +
+          '<a href="/blog?id=' + encodeURIComponent(b.id) + '">' +
             '<img src="' + esc(b.image) + '" alt="' + esc(b.title) + '" loading="lazy" width="650" height="400"></a>' +
         '</div>' +
         '<div class="body">' +
           '<div class="meta"><span><i class="bi bi-calendar3" aria-hidden="true"></i> ' + esc(b.date || "") + '</span></div>' +
-          '<h3><a href="blog.html?id=' + encodeURIComponent(b.id) + '">' + esc(b.title) + '</a></h3>' +
+          '<h3><a href="/blog?id=' + encodeURIComponent(b.id) + '">' + esc(b.title) + '</a></h3>' +
           '<p class="muted">' + esc(b.excerpt || "") + '</p>' +
-          '<div class="foot"><span class="row-sub">' + esc((b.tags || []).slice(0, 3).join(", ")) + '</span><a class="btn btn-primary btn-sm" href="blog.html?id=' + encodeURIComponent(b.id) + '">Read</a></div>' +
+          '<div class="foot"><span class="row-sub">' + esc((b.tags || []).slice(0, 3).join(", ")) + '</span><a class="btn btn-primary btn-sm" href="/blog?id=' + encodeURIComponent(b.id) + '">Read</a></div>' +
         '</div>' +
       '</article>'
     );
@@ -94,16 +94,16 @@
       '<article class="card">' +
         '<div class="thumb">' + badge +
           '<span class="badge cat">' + esc(catName(p.category)) + "</span>" +
-          '<a href="package.html?id=' + encodeURIComponent(p.id) + '">' +
+          '<a href="/package?id=' + encodeURIComponent(p.id) + '">' +
             '<img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" loading="lazy" width="650" height="400"></a>' +
         "</div>" +
         '<div class="body">' +
           '<div class="meta"><span><i class="bi bi-geo-alt" aria-hidden="true"></i> ' + esc(p.destination) + '</span><span><i class="bi bi-calendar3" aria-hidden="true"></i> ' + esc(p.duration) + "</span></div>" +
-          "<h3><a href=\"package.html?id=" + encodeURIComponent(p.id) + '">' + esc(p.title) + "</a></h3>" +
+          "<h3><a href=\"/package?id=" + encodeURIComponent(p.id) + '">' + esc(p.title) + "</a></h3>" +
           '<div class="rating"><i class="bi bi-star-fill" aria-hidden="true"></i> ' + esc(p.rating) + ' <span>(' + esc(p.reviews) + " reviews)</span></div>" +
           '<div class="foot">' +
             '<div class="price">' + priceBlock(p) + "</div>" +
-            '<a class="btn btn-primary btn-sm" href="package.html?id=' + encodeURIComponent(p.id) + '">View</a>' +
+            '<a class="btn btn-primary btn-sm" href="/package?id=' + encodeURIComponent(p.id) + '">View</a>' +
           "</div>" +
         "</div>" +
       "</article>"
@@ -211,7 +211,7 @@
 
       grid.innerHTML = paginatedList.length
         ? paginatedList.map(cardHTML).join("")
-        : '<div class="empty">No packages match your filters. <a href="packages.html">View all packages</a>.</div>';
+        : '<div class="empty">No packages match your filters. <a href="/packages">View all packages</a>.</div>';
 
       var count = document.getElementById("result-count");
       if (count) count.textContent = allFiltered.length + " package" + (allFiltered.length === 1 ? "" : "s");
@@ -313,14 +313,14 @@
     var id = new URLSearchParams(location.search).get("id");
     var b = id && getBlog(id);
     if (!b || b.status === "draft") {
-      root.innerHTML = '<div class="empty"><h2>Blog not found</h2><p>It may have moved. <a href="blogs.html">Browse all blogs</a>.</p></div>';
+      root.innerHTML = '<div class="empty"><h2>Blog not found</h2><p>It may have moved. <a href="/blogs">Browse all blogs</a>.</p></div>';
       return;
     }
     document.title = (b.metaTitle || b.title) + " | CareMyTrip";
     var meta = document.querySelector('meta[name="description"]');
     if (meta && b.metaDescription) meta.setAttribute("content", b.metaDescription);
     var bc = document.getElementById("blog-breadcrumb");
-    if (bc) bc.innerHTML = '<a href="index.html">Home</a> / <a href="blogs.html">Blogs</a> / ' + esc(b.title);
+    if (bc) bc.innerHTML = '<a href="/">Home</a> / <a href="/blogs">Blogs</a> / ' + esc(b.title);
     root.innerHTML =
       '<article class="detail blog-detail">' +
         '<div class="detail-hero"><img src="' + esc(b.image) + '" alt="' + esc(b.title) + '" width="900" height="500"></div>' +
@@ -357,12 +357,12 @@
     var id = new URLSearchParams(location.search).get("id");
     var p = id && getPackage(id);
     if (!p) {
-      root.innerHTML = '<div class="empty"><h2>Package not found</h2><p>It may have moved. <a href="packages.html">Browse all packages</a>.</p></div>';
+      root.innerHTML = '<div class="empty"><h2>Package not found</h2><p>It may have moved. <a href="/packages">Browse all packages</a>.</p></div>';
       return;
     }
     document.title = p.title + " — CareMyTrip";
     var bc = document.getElementById("detail-breadcrumb");
-    if (bc) bc.innerHTML = '<a href="index.html">Home</a> / <a href="packages.html">Packages</a> / ' + esc(p.title);
+    if (bc) bc.innerHTML = '<a href="/">Home</a> / <a href="/packages">Packages</a> / ' + esc(p.title);
 
     var quoteText = "Hi CareMyTrip, I'm interested in the \"" + p.title + "\" package. Please share details.";
     var itin = (p.itinerary || []).map(function (d) {
@@ -380,6 +380,15 @@
     var exc = excList.map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("");
     var hi = highlightList.map(function (h) { return "<li>" + esc(h) + "</li>"; }).join("");
 
+    // Optional photo gallery (real tour photos)
+    var galleryImgs = (p.gallery && p.gallery.length) ? p.gallery : [];
+    var gallery = galleryImgs.map(function (g, idx) {
+      var src = typeof g === "string" ? g : g.src;
+      var cap = typeof g === "string" ? (p.title + " — photo " + (idx + 1)) : (g.alt || p.title);
+      return '<a class="gallery-item" href="' + esc(src) + '" target="_blank" rel="noopener">' +
+        '<img src="' + esc(src) + '" alt="' + esc(cap) + '" loading="lazy" width="400" height="260"></a>';
+    }).join("");
+
     var priceBig = p.price == null
       ? '<div class="price-big" style="color:var(--accent)">On Request</div>'
       : '<div class="price-big">' + money(p.price) + ' <small>/ person</small></div>' +
@@ -396,6 +405,7 @@
           '<span><i class="bi bi-star-fill" aria-hidden="true"></i> <b>' + esc(p.rating) + "</b> (" + esc(p.reviews) + " reviews)</span>" +
         "</div>" +
         '<p class="pkg-summary">' + esc(packageSummary(p)) + "</p>" +
+        (gallery ? '<h2>Photo Gallery</h2><div class="pkg-gallery">' + gallery + "</div>" : "") +
         (hi ? '<h2>Highlights</h2><ul class="inc-list yes">' + hi + "</ul>" : "") +
         (itin ? '<h2>Day-wise Itinerary</h2><ul class="itin">' + itin + "</ul>" : "") +
         '<div id="route-map-container" class="route-map-section"><h2>Journey Route</h2><div id="route-map" class="route-map"></div></div>' +
