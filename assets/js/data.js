@@ -68,12 +68,6 @@ window.CMT = {
       "image": "wp-content/uploads/2025/09/blog-image4-650x400.webp"
     },
     {
-      "id": "kashmir-ladakh",
-      "name": "Kashmir & Himalayas",
-      "blurb": "Srinagar, Gulmarg, Pahalgam & mountain retreats.",
-      "image": "wp-content/uploads/2025/09/tour-8-650x400.webp"
-    },
-    {
       "id": "ayodhya",
       "name": "Ramayana Yatra",
       "blurb": "Sacred Ramayana circuit & cultural tours of Awadh.",

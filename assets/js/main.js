@@ -721,11 +721,34 @@
     });
   }
 
-  /* ---- mobile nav ---- */
+  /* ---- mobile nav + destinations dropdown ---- */
   function bindNav() {
     var t = document.querySelector(".nav-toggle");
     var n = document.querySelector(".nav");
     if (t && n) t.addEventListener("click", function () { n.classList.toggle("open"); });
+
+    // Destinations dropdown: hover works on mouse devices via CSS; on touch
+    // devices (no hover) the first tap should open the menu instead of
+    // navigating straight to /packages.
+    var drop = document.querySelector(".nav-item.has-dropdown");
+    var dropToggle = drop && drop.querySelector(".nav-drop-toggle");
+    if (drop && dropToggle) {
+      dropToggle.addEventListener("click", function (e) {
+        var noHover = window.matchMedia("(hover: none)").matches;
+        if (noHover && !drop.classList.contains("open")) {
+          e.preventDefault();              // first tap opens the menu
+          drop.classList.add("open");
+          dropToggle.setAttribute("aria-expanded", "true");
+        }
+      });
+      // tap/click outside closes it
+      document.addEventListener("click", function (e) {
+        if (drop.classList.contains("open") && !drop.contains(e.target)) {
+          drop.classList.remove("open");
+          dropToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
   }
 
   /* ---- google reviews carousel (seamless marquee, same speed as affiliations) ---- */

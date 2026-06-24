@@ -99,6 +99,25 @@ p{margin:0 0 1em}
 .header-phone{font-weight:800;color:var(--primary);white-space:nowrap}
 .nav-toggle{display:none;background:none;border:none;font-size:26px;cursor:pointer;color:var(--ink);line-height:1}
 
+/* ---- Destinations dropdown ---- */
+.nav-item.has-dropdown{position:relative;display:flex;align-items:center}
+.nav-drop-toggle{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.nav-caret{font-size:12px;transition:transform .2s ease}
+/* invisible hover bridge so moving to the menu doesn't lose hover */
+.nav-item.has-dropdown::after{content:"";position:absolute;top:100%;left:0;right:0;height:14px}
+.dropdown{position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(8px);
+  min-width:230px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  padding:8px;display:flex;flex-direction:column;gap:2px;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .18s ease, transform .18s ease;z-index:60}
+.nav-item.has-dropdown:hover .dropdown,
+.nav-item.has-dropdown:focus-within .dropdown,
+.nav-item.has-dropdown.open .dropdown{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.nav-item.has-dropdown:hover .nav-caret,
+.nav-item.has-dropdown.open .nav-caret{transform:rotate(180deg)}
+.dropdown a{padding:10px 14px;border-radius:9px;font-size:14.5px;font-weight:600;white-space:nowrap;color:var(--ink)}
+.dropdown a:hover{background:var(--bg-soft);color:var(--primary)}
+.dropdown a .d-sub{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+
 /* ---------- Hero ---------- */
 .hero{position:relative;color:#fff;overflow:hidden;background:#0c1d33;isolation:isolate}
 .hero .container{padding:96px 20px 120px;position:relative;z-index:3}
@@ -523,9 +542,16 @@ aside{position:sticky;top:78px;height:fit-content;z-index:40}
 @media(max-width:760px){
   .nav,.header-phone{display:none}
   .nav.open{display:flex;position:absolute;top:78px;left:0;right:0;background:#fff;flex-direction:column;
-    padding:18px 20px;box-shadow:var(--shadow);gap:6px}
+    padding:18px 20px;box-shadow:var(--shadow);gap:6px;max-height:calc(100vh - 78px);overflow-y:auto}
   .nav.open a{padding:10px 0;border-bottom:1px solid var(--line)}
   .nav-toggle{display:block}
+  /* dropdown flattens into the mobile menu (always visible, indented) */
+  .nav.open .nav-item.has-dropdown{flex-direction:column;align-items:stretch}
+  .nav.open .nav-item.has-dropdown::after{display:none}
+  .nav.open .dropdown{position:static;transform:none;opacity:1;visibility:visible;min-width:0;
+    box-shadow:none;border:none;border-radius:0;padding:0 0 4px 14px;background:transparent}
+  .nav.open .dropdown a{font-size:14px;font-weight:500}
+  .nav.open .nav-caret{display:none}
   .grid-3,.grid-4,.feat-grid,.testi-grid,.contact-grid,.inc-grid,.form-card .row{grid-template-columns:1fr}
   .foot-grid{grid-template-columns:1fr;gap:28px}
   .foot-grid>div{min-width:0}

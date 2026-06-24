@@ -51,8 +51,12 @@ class CleanURLHandler(http.server.SimpleHTTPRequestHandler):
         super().do_HEAD()
 
 
+class ThreadingHTTPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
+
 if __name__ == "__main__":
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), CleanURLHandler) as httpd:
+    with ThreadingHTTPServer(("", PORT), CleanURLHandler) as httpd:
         print(f"Serving CareMyTrip (clean-URL, no-cache) on http://localhost:{PORT}")
         httpd.serve_forever()
