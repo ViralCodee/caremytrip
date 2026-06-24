@@ -539,6 +539,23 @@ aside{position:sticky;top:78px;height:fit-content;z-index:40}
   .foot-grid{grid-template-columns:1fr 1fr}
   .searchbar{grid-template-columns:1fr 1fr}
 }
+/* ---- iPad / tablet: nav collapses to hamburger, header CTAs compress ---- */
+@media(max-width:1024px){
+  .nav,.header-phone{display:none}
+  .nav.open{display:flex;position:absolute;top:78px;left:0;right:0;background:#fff;
+    flex-direction:column;padding:18px 20px;box-shadow:var(--shadow);gap:6px;z-index:60}
+  .nav.open a{padding:10px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+  .nav-toggle{display:block}
+  .header-cta{gap:10px}
+  .header-cta .btn-sm{white-space:nowrap;padding:9px 14px;font-size:13.5px}
+  .site-header .container{gap:12px}
+  /* Section padding for tablet to feel less spaced */
+  section{padding:56px 0}
+  .page-banner{padding:64px 20px}
+  /* Ensure the CTA band breathes on tablet */
+  .cta-band{padding:36px 28px}
+  .cta-band h2{font-size:24px}
+}
 @media(max-width:760px){
   .nav,.header-phone{display:none}
   .nav.open{display:flex;position:absolute;top:78px;left:0;right:0;background:#fff;flex-direction:column;
